@@ -42,7 +42,7 @@ if [ -z "$cmd" ]; then
     spinner "Generating command" "${SPINNER_STYLE:-box}" &
     SPINNER_PID=$!
     
-    PROMPT="${CURRENT_DIR}\n${FILES_HERE}\n${RECENT_CMDS}${CONTEXT}\n\nYou are a shell command generator for macOS/zsh. Output ONLY the command, nothing else. No backticks, no markdown, no explanation.\n\nExamples:\n- 'edit zsh config' → nano ~/.zshrc\n- 'show disk usage' → df -h\n- 'find large files' → find . -type f -size +100M\n\nNow generate command for: $*"
+    PROMPT="${CURRENT_DIR}\n${FILES_HERE}\n${RECENT_CMDS}${CONTEXT}\n\nYou are a shell command generator for macOS/zsh. Generate ONLY valid, executable shell commands.\n\nRULES:\n1. Output ONLY the command - no markdown, no backticks, no explanation\n2. Use proper shell syntax - validate parentheses, quotes, and brackets\n3. Use simple, tested Unix commands\n4. For dates, use: \$(date +%Y%m%d) or \$(date +%Y-%m-%d)\n5. Avoid complex arithmetic expressions\n\nExamples:\n- 'organize desktop by date' → mkdir ~/Desktop/\"\$(date +%Y-%m-%d)\" && mv ~/Desktop/* ~/Desktop/\"\$(date +%Y-%m-%d)\"/\n- 'show disk usage' → df -h\n- 'find large files' → find . -type f -size +100M\n- 'list files by size' → ls -lhS\n\nTask: $*\nCommand:"
     cmd=$(ollama run llama3.1:8b "$PROMPT" 2>/dev/null | head -n 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/^`//;s/`$//')
     
     # Stop spinner
