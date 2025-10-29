@@ -1,6 +1,10 @@
 #!/bin/bash
 # AI assistant using Ollama with conversation context
 
+# Load spinner library
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SOURCE_DIR/spinner"
+
 CONTEXT_FILE=~/.ai-conversation-context
 MAX_CONTEXT_LINES=100  # Keep last ~50 exchanges
 
@@ -10,7 +14,7 @@ QUESTION="$*"
 # Handle special commands
 if [[ "$QUESTION" == "clear" ]] || [[ "$QUESTION" == "reset" ]]; then
     rm -f "$CONTEXT_FILE"
-    echo "[×] Conversation context cleared"
+    success "Conversation context cleared"
     exit 0
 fi
 
@@ -41,8 +45,15 @@ fi
 # Build prompt with context
 PROMPT="${SYSTEM_INFO}${CONVERSATION_HISTORY}User: $QUESTION\n\nAnswer directly and concisely:"
 
-# Call ollama and capture response
-RESPONSE=$(ollama run llama3.1:8b "$PROMPT")
+# Start spinner while AI thinks
+spinner "Thinking" "${SPINNER_STYLE:-box}" &
+SPINNER_PID=$!
+
+# Call ollama and capture response (redirect stderr to hide progress)
+RESPONSE=$(ollama run llama3.1:8b "$PROMPT" 2>/dev/null)
+
+# Stop spinner
+stop_spinner $SPINNER_PID
 
 # Display response
 echo "$RESPONSE"

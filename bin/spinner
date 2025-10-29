@@ -1,0 +1,205 @@
+#!/bin/bash
+# Retro spinner and animation library for boostr
+
+# Colors
+CYAN='\033[0;36m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+GRAY='\033[0;90m'
+YELLOW='\033[0;33m'
+RESET='\033[0m'
+
+# Spinner frames (retro 8-bit style)
+declare -a SPINNER_DOTS=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+declare -a SPINNER_BLOCKS=('▖' '▘' '▝' '▗')
+declare -a SPINNER_BOX=('◰' '◳' '◲' '◱')
+declare -a SPINNER_ARROW=('←' '↖' '↑' '↗' '→' '↘' '↓' '↙')
+declare -a SPINNER_PIXEL=('⨾' '⨽' '⨻' '⨿' '⨟' '⩟' '⩯' '⩷')
+declare -a SPINNER_BINARY=('[0000]' '[0001]' '[0011]' '[0111]' '[1111]' '[0111]' '[0011]' '[0001]')
+declare -a SPINNER_BOUNCE=('.   ' '..  ' '... ' '    ' '... ' '..  ')
+declare -a SPINNER_LINE=('—' '\\' '|' '/')
+declare -a SPINNER_GROW=('○' '◌' '◉' '●' '◉' '◌')
+declare -a SPINNER_PULSE=('•' '◦' '▫' '◦')
+
+# Current spinner style (default: dots)
+SPINNER_STYLE="${SPINNER_STYLE:-dots}"
+
+# Get spinner frames based on style
+get_spinner_frames() {
+    case "$1" in
+        dots) echo "${SPINNER_DOTS[@]}" ;;
+        blocks) echo "${SPINNER_BLOCKS[@]}" ;;
+        box) echo "${SPINNER_BOX[@]}" ;;
+        arrow) echo "${SPINNER_ARROW[@]}" ;;
+        pixel) echo "${SPINNER_PIXEL[@]}" ;;
+        binary) echo "${SPINNER_BINARY[@]}" ;;
+        bounce) echo "${SPINNER_BOUNCE[@]}" ;;
+        line) echo "${SPINNER_LINE[@]}" ;;
+        grow) echo "${SPINNER_GROW[@]}" ;;
+        pulse) echo "${SPINNER_PULSE[@]}" ;;
+        *) echo "${SPINNER_BOX[@]}" ;;
+    esac
+}
+
+# Show spinner with message
+# Usage: spinner "message" "style" &
+# SPINNER_PID=$!
+spinner() {
+    local message="${1:-Processing}"
+    local style="${2:-dots}"
+    local frames=($(get_spinner_frames "$style"))
+    local delay=0.1
+    
+    tput civis 2>/dev/null  # Hide cursor
+    
+    while true; do
+        for frame in "${frames[@]}"; do
+            # Clear line completely, then show only spinner
+            printf "\r\033[K${CYAN}%s${RESET}" "${frame}"
+            sleep "$delay"
+        done
+    done
+}
+
+# Stop spinner
+stop_spinner() {
+    if [ ! -z "$1" ]; then
+        kill "$1" 2>/dev/null
+        wait "$1" 2>/dev/null
+    fi
+    printf "\r\033[K"  # Clear line
+    tput cnorm 2>/dev/null  # Show cursor
+}
+
+# Animated success icon
+success() {
+    local style="${SUCCESS_STYLE:-build}"
+    sleep 0.2
+    local frames
+    case "$style" in
+        build)  frames=('[ ]' '[·]' '[•]' '[✓]') ;;  # Checkmark
+        binary) frames=('[0]' '[1]' '[OK]' '[OK]') ;;  # OK
+        box)    frames=('[□]' '[▣]' '[■]' '[■]') ;;  # Box
+        spark)  frames=('[ ]' '[•]' '[◆]' '[★]') ;;  # Star
+        wave)   frames=('[~]' '[≈]' '[≡]' '[≡]') ;;  # Lines
+        *)      frames=('[ ]' '[·]' '[•]' '[✓]') ;;
+    esac
+    for frame in "${frames[@]}"; do
+        printf "\r${GREEN}%s${RESET} %s" "${frame}" "$1"
+        sleep 0.15
+    done
+    echo ""
+}
+
+# Animated error icon
+error() {
+    local style="${ERROR_STYLE:-build}"
+    sleep 0.2
+    local frames
+    case "$style" in
+        build)  frames=('[ ]' '[.]' '[×]' '[×]') ;;  # X
+        binary) frames=('[1]' '[0]' '[XX]' '[XX]') ;;  # XX
+        cross)  frames=('[ ]' '[+]' '[×]' '[✖]') ;;  # Heavy X
+        alert)  frames=('[ ]' '[△]' '[▲]' '[■]') ;;  # Square
+        glitch) frames=('[#]' '[@]' '[%]' '[☠]') ;;  # Skull
+        *)      frames=('[ ]' '[.]' '[×]' '[×]') ;;
+    esac
+    for frame in "${frames[@]}"; do
+        printf "\r${RED}%s${RESET} %s" "${frame}" "$1"
+        sleep 0.15
+    done
+    echo ""
+}
+
+# Animated info icon
+info() {
+    local style="${INFO_STYLE:-build}"
+    sleep 0.2
+    local frames
+    case "$style" in
+        build)  frames=('[ ]' '[-]' '[>]' '[>]') ;;  # Arrow
+        binary) frames=('[0]' '[1]' '[>>]' '[►]') ;;  # Triangle
+        arrow)  frames=('[ ]' '[→]' '[⇒]' '[⇨]') ;;  # Bold arrow
+        pulse)  frames=('[ ]' '[○]' '[◉]' '[◉]') ;;  # Circle
+        scan)   frames=('[←]' '[-]' '[→]' '[►]') ;;  # Play
+        *)      frames=('[ ]' '[-]' '[>]' '[>]') ;;
+    esac
+    for frame in "${frames[@]}"; do
+        printf "\r${CYAN}%s${RESET} %s" "${frame}" "$1"
+        sleep 0.15
+    done
+    echo ""
+}
+
+# Animated warning icon
+warning() {
+    local style="${WARNING_STYLE:-build}"
+    sleep 0.2
+    local frames
+    case "$style" in
+        build)   frames=('[ ]' '[.]' '[!]' '[!]') ;;  # Exclamation
+        binary)  frames=('[?]' '[1]' '[!]' '[‼]') ;;  # Double !!
+        alert)   frames=('[ ]' '[△]' '[▲]' '[▲]') ;;  # Triangle
+        flash)   frames=('[ ]' '[!]' '[ ]' '[⚠]') ;;  # Warning sign
+        caution) frames=('[/]' '[\\]' '[X]' '[X]') ;;  # X
+        *)       frames=('[ ]' '[.]' '[!]' '[!]') ;;
+    esac
+    for frame in "${frames[@]}"; do
+        printf "\r${YELLOW}%s${RESET} %s" "${frame}" "$1"
+        sleep 0.15
+    done
+    echo ""
+}
+
+# Static versions (for when you don't want animation)
+success_static() {
+    echo -e "${GREEN}[✓]${RESET} $1"
+}
+
+error_static() {
+    echo -e "${RED}[×]${RESET} $1"
+}
+
+info_static() {
+    echo -e "${CYAN}[>]${RESET} $1"
+}
+
+warning_static() {
+    echo -e "${YELLOW}[!]${RESET} $1"
+}
+
+# Thinking animation
+thinking() {
+    echo -e "${CYAN}[?]${RESET} $1"
+}
+
+# Progress bar (retro 8-bit style)
+progress_bar() {
+    local current=$1
+    local total=$2
+    local width=30
+    local percentage=$((current * 100 / total))
+    local filled=$((current * width / total))
+    local empty=$((width - filled))
+    
+    printf "\r${CYAN}["
+    printf "%${filled}s" | tr ' ' '█'
+    printf "%${empty}s" | tr ' ' '░'
+    printf "]${RESET} %3d%%" "$percentage"
+}
+
+# Retro box around text
+box() {
+    local text="$1"
+    local length=${#text}
+    local width=$((length + 4))
+    
+    echo ""
+    printf "┌%${width}s┐\n" | tr ' ' '─'
+    printf "│  %s  │\n" "$text"
+    printf "└%${width}s┘\n" | tr ' ' '─'
+    echo ""
+}
+
+# Export functions for use in other scripts
+export -f spinner stop_spinner success error info warning thinking progress_bar box

@@ -1,0 +1,53 @@
+#!/bin/bash
+# Demo all status icon animation styles
+
+source "$(dirname "$0")/spinner"
+
+echo ""
+echo "Status Animation Styles"
+echo "======================="
+echo ""
+
+# Success variations
+echo "SUCCESS (Green):"
+echo "----------------"
+SUCCESS_STYLE="build" success "build: ✓ checkmark"
+SUCCESS_STYLE="binary" success "binary: OK text"
+SUCCESS_STYLE="box" success "box: ■ filled box"
+SUCCESS_STYLE="spark" success "spark: ★ star"
+SUCCESS_STYLE="wave" success "wave: ≡ lines"
+echo ""
+
+# Error variations
+echo "ERROR (Red):"
+echo "------------"
+ERROR_STYLE="build" error "build: × X mark"
+ERROR_STYLE="binary" error "binary: XX text"
+ERROR_STYLE="cross" error "cross: ✖ heavy X"
+ERROR_STYLE="alert" error "alert: ■ square"
+ERROR_STYLE="glitch" error "glitch: ☠ skull"
+echo ""
+
+# Info variations
+echo "INFO (Cyan):"
+echo "------------"
+INFO_STYLE="build" info "build: > arrow"
+INFO_STYLE="binary" info "binary: ► triangle"
+INFO_STYLE="arrow" info "arrow: ⇨ bold arrow"
+INFO_STYLE="pulse" info "pulse: ◉ circle"
+INFO_STYLE="scan" info "scan: ► play"
+echo ""
+
+# Warning variations
+echo "WARNING (Yellow):"
+echo "-----------------"
+WARNING_STYLE="build" warning "build: ! exclamation"
+WARNING_STYLE="binary" warning "binary: ‼ double !!"
+WARNING_STYLE="alert" warning "alert: ▲ triangle"
+WARNING_STYLE="flash" warning "flash: ⚠ warning sign"
+WARNING_STYLE="caution" warning "caution: X marks"
+echo ""
+
+echo "Current defaults: build style for all"
+echo "To change: export SUCCESS_STYLE=spark"
+echo ""

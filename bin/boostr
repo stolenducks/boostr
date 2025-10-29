@@ -4,9 +4,10 @@
 # Colors
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
-ORANGE='\033[0;33m'
 GRAY='\033[0;90m'
 RED='\033[0;31m'
+YELLOW='\033[0;33m'
+RESET='\033[0m'
 RESET='\033[0m'
 
 # ASCII art - boostr with color gradient
@@ -22,10 +23,14 @@ echo -e "${GRAY}    ██████${RESET}   ██████   ███�
 echo ""
 
 echo ""
-echo -e "${GRAY}  $(date '+%A, %B %d %Y - %I:%M %p')${RESET}"
+echo -e "  ${GRAY}v1.0.0${RESET} | $(date '+%b %d, %I:%M %p')${RESET}"
 echo ""
-echo -e "${CYAN}  Commands:${RESET}"
-echo -e "${GREEN}    ai${RESET} \"question\"     - Ask AI anything"
-echo -e "${GREEN}    doo${RESET} \"command\"     - Generate & run commands"
-echo -e "${GREEN}    ai clear${RESET}          - Reset conversation"
+echo -e "  ${CYAN}Quick Start:${RESET}"
+echo -e "    ${GREEN}ai${RESET}  \"question\"  - Conversational AI with context"
+echo -e "    ${GREEN}doo${RESET} \"task\"      - AI command generator + executor"
+echo ""
+echo -e "  ${CYAN}Status Symbols:${RESET}"
+echo -e "    ${GREEN}[✓]${RESET} Success  ${RED}[×]${RESET} Error  ${CYAN}[>]${RESET} Info  ${YELLOW}[!]${RESET} Warning"
+echo ""
+echo -e "  ${GRAY}Type 'ai clear' to reset conversation • 'boostr' to show this${RESET}"
 echo ""

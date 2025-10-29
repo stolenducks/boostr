@@ -1,0 +1,104 @@
+#!/bin/bash
+# Demo all spinner styles
+
+source "$(dirname "$0")/spinner"
+
+echo ""
+echo "Spinner Style Previews"
+echo "======================"
+echo ""
+
+# Dots style
+echo "DOTS style (braille dots):"
+spinner "Loading" "dots" &
+SPINNER_PID=$!
+sleep 3
+stop_spinner $SPINNER_PID
+echo ""
+echo ""
+
+# Blocks style
+echo "BLOCKS style (corner blocks):"
+spinner "Loading" "blocks" &
+SPINNER_PID=$!
+sleep 3
+stop_spinner $SPINNER_PID
+echo ""
+echo ""
+
+# Box style
+echo "BOX style (filled boxes):"
+spinner "Loading" "box" &
+SPINNER_PID=$!
+sleep 3
+stop_spinner $SPINNER_PID
+echo ""
+echo ""
+
+# Arrow style
+echo "ARROW style (8 directions):"
+spinner "Loading" "arrow" &
+SPINNER_PID=$!
+sleep 3
+stop_spinner $SPINNER_PID
+echo ""
+echo ""
+
+# Pixel style
+echo "PIXEL style (braille pattern):" 
+spinner "Loading" "pixel" &
+SPINNER_PID=$!
+sleep 3
+stop_spinner $SPINNER_PID
+echo ""
+echo ""
+
+# Binary style
+echo "BINARY style (digital binary):" 
+spinner "Loading" "binary" &
+SPINNER_PID=$!
+sleep 3
+stop_spinner $SPINNER_PID
+echo ""
+echo ""
+
+# Bounce style
+echo "BOUNCE style (bouncing dots):" 
+spinner "Loading" "bounce" &
+SPINNER_PID=$!
+sleep 3
+stop_spinner $SPINNER_PID
+echo ""
+echo ""
+
+# Line style
+echo "LINE style (classic spinner):" 
+spinner "Loading" "line" &
+SPINNER_PID=$!
+sleep 3
+stop_spinner $SPINNER_PID
+echo ""
+echo ""
+
+# Grow style
+echo "GROW style (pulsing circle):" 
+spinner "Loading" "grow" &
+SPINNER_PID=$!
+sleep 3
+stop_spinner $SPINNER_PID
+echo ""
+echo ""
+
+# Pulse style
+echo "PULSE style (minimal pulse):" 
+spinner "Loading" "pulse" &
+SPINNER_PID=$!
+sleep 3
+stop_spinner $SPINNER_PID
+echo ""
+echo ""
+
+echo "Current default: BOX style"
+echo "To change, edit: ~/boostr/bin/ai or ~/boostr/bin/ai-exec"
+echo "Change 'spinner \"...\" \"box\"' to another style"
+echo ""

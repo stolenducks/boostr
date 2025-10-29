@@ -1,0 +1,162 @@
+#!/bin/bash
+# Interactive spinner style selector for boostr
+
+source "$(dirname "$0")/spinner"
+
+STYLES=("dots" "blocks" "box" "arrow" "pixel" "binary" "bounce" "line" "grow" "pulse")
+CURRENT=0
+SELECTED=""
+PREVIEW_PID=""
+
+# Colors
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+GRAY='\033[0;90m'
+RESET='\033[0m'
+
+# Show menu with preview at top
+show_menu() {
+    local selected_idx=$1
+    
+    clear
+    
+    echo -e "${CYAN}Spinner Style Selector${RESET}"
+    echo "======================"
+    echo ""
+    echo "Preview:"
+    echo ""
+    
+    # Reserve 2 lines for preview animation
+    echo ""
+    echo ""
+    
+    echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+    echo ""
+    echo "↑/↓ or j/k to navigate, Enter to select, q to quit"
+    echo ""
+    
+    # Menu options (compact list)
+    for i in "${!STYLES[@]}"; do
+        local style="${STYLES[$i]}"
+        if [ $i -eq $selected_idx ]; then
+            echo -e "  ${GREEN}→ ${style}${RESET}"
+        else
+            echo -e "    ${style}"
+        fi
+    done
+}
+
+# Start preview animation at top
+start_preview() {
+    local style=$1
+    # Kill existing preview if running
+    if [ -n "$PREVIEW_PID" ]; then
+        kill $PREVIEW_PID 2>/dev/null
+        wait $PREVIEW_PID 2>/dev/null
+    fi
+    # Position cursor at preview line (line 5) and start new preview
+    (
+        tput cup 4 0
+        spinner "Previewing" "$style"
+    ) &
+    PREVIEW_PID=$!
+}
+
+# Save selection to config
+save_selection() {
+    local style=$1
+    local config_file="$HOME/.boostr-config"
+    
+    # Create or update config
+    touch "$config_file"
+    
+    # Read existing config excluding SPINNER_STYLE
+    if [ -f "$config_file" ]; then
+        grep -v '^export SPINNER_STYLE=' "$config_file" > "${config_file}.tmp" 2>/dev/null || true
+    else
+        : > "${config_file}.tmp"
+    fi
+    
+    # Write new SPINNER_STYLE and restore other exports
+    echo "export SPINNER_STYLE=\"$style\"" > "$config_file"
+    cat "${config_file}.tmp" >> "$config_file"
+    rm -f "${config_file}.tmp"
+    
+    # Add to zshrc if not already there
+    if ! grep -q "source.*boostr-config" "$HOME/.zshrc" 2>/dev/null; then
+        echo "" >> "$HOME/.zshrc"
+        echo "# Boostr configuration" >> "$HOME/.zshrc"
+        echo "[ -f ~/.boostr-config ] && source ~/.boostr-config" >> "$HOME/.zshrc"
+    fi
+    
+    echo ""
+    echo -e "${GREEN}✓${RESET} Spinner style set to: ${CYAN}$style${RESET}"
+    echo ""
+    echo "Restart your terminal or run: source ~/.zshrc"
+    echo ""
+}
+
+# Main interactive loop
+main() {
+    tput civis  # Hide cursor
+    
+    show_menu $CURRENT
+    start_preview "${STYLES[$CURRENT]}"
+    
+    while true; do
+        # Read single character
+        read -rsn1 key
+        
+        case "$key" in
+            $'\x1b')  # Escape sequence
+                read -rsn2 key
+                case "$key" in
+                    '[A'|'[D')  # Up arrow
+                        ((CURRENT--))
+                        [ $CURRENT -lt 0 ] && CURRENT=$((${#STYLES[@]} - 1))
+                        show_menu $CURRENT
+                        start_preview "${STYLES[$CURRENT]}"
+                        ;;
+                    '[B'|'[C')  # Down arrow
+                        ((CURRENT++))
+                        [ $CURRENT -ge ${#STYLES[@]} ] && CURRENT=0
+                        show_menu $CURRENT
+                        start_preview "${STYLES[$CURRENT]}"
+                        ;;
+                esac
+                ;;
+            'k')  # k = up (vim style)
+                ((CURRENT--))
+                [ $CURRENT -lt 0 ] && CURRENT=$((${#STYLES[@]} - 1))
+                show_menu $CURRENT
+                start_preview "${STYLES[$CURRENT]}"
+                ;;
+            'j')  # j = down (vim style)
+                ((CURRENT++))
+                [ $CURRENT -ge ${#STYLES[@]} ] && CURRENT=0
+                show_menu $CURRENT
+                start_preview "${STYLES[$CURRENT]}"
+                ;;
+            '')  # Enter
+                [ -n "$PREVIEW_PID" ] && kill $PREVIEW_PID 2>/dev/null
+                SELECTED="${STYLES[$CURRENT]}"
+                tput cnorm  # Show cursor
+                clear
+                save_selection "$SELECTED"
+                break
+                ;;
+            'q'|'Q')  # Quit
+                [ -n "$PREVIEW_PID" ] && kill $PREVIEW_PID 2>/dev/null
+                tput cnorm  # Show cursor
+                clear
+                echo "Cancelled"
+                exit 0
+                ;;
+        esac
+    done
+}
+
+# Cleanup on exit
+trap 'kill $PREVIEW_PID 2>/dev/null; tput cnorm; clear' EXIT
+
+main

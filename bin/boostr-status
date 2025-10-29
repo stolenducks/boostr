@@ -1,0 +1,231 @@
+#!/bin/bash
+# Interactive status icon style selector for boostr
+
+source "$(dirname "$0")/spinner"
+
+# Colors
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+GRAY='\033[0;90m'
+RESET='\033[0m'
+
+TYPES=("success" "error" "info" "warning")
+SUCCESS_STYLES=("build" "binary" "box" "spark" "wave")
+ERROR_STYLES=("build" "binary" "cross" "alert" "glitch")
+INFO_STYLES=("build" "binary" "arrow" "pulse" "scan")
+WARNING_STYLES=("build" "binary" "alert" "flash" "caution")
+
+# Level 1: Select status type
+select_type() {
+    local current=0
+    
+    while true; do
+        clear
+        echo ""
+        echo -e "${CYAN}Status Icon Selector - Step 1/2${RESET}"
+        echo "===================================="
+        echo ""
+        echo "Select status type (↑/↓ or j/k, Enter to continue, q to quit):"
+        echo ""
+        
+        for i in "${!TYPES[@]}"; do
+            local type="${TYPES[$i]}"
+            if [ $i -eq $current ]; then
+                case "$type" in
+                    success) echo -e "  ${GREEN}→ SUCCESS (Green)${RESET}" ;;
+                    error)   echo -e "  ${RED}→ ERROR (Red)${RESET}" ;;
+                    info)    echo -e "  ${CYAN}→ INFO (Cyan)${RESET}" ;;
+                    warning) echo -e "  ${YELLOW}→ WARNING (Yellow)${RESET}" ;;
+                esac
+            else
+                echo -e "  ${GRAY}  ${type}${RESET}"
+            fi
+        done
+        
+        read -rsn1 key
+        case "$key" in
+            $'\x1b')
+                read -rsn2 key
+                case "$key" in
+                    '[A'|'[D') ((current--)); [ $current -lt 0 ] && current=$((${#TYPES[@]} - 1)) ;;
+                    '[B'|'[C') ((current++)); [ $current -ge ${#TYPES[@]} ] && current=0 ;;
+                esac
+                ;;
+            'k') ((current--)); [ $current -lt 0 ] && current=$((${#TYPES[@]} - 1)) ;;
+            'j') ((current++)); [ $current -ge ${#TYPES[@]} ] && current=0 ;;
+            '') SELECTED_TYPE="${TYPES[$current]}"; return ;;
+            'q'|'Q') clear; echo "Cancelled"; exit 0 ;;
+        esac
+    done
+}
+
+# Level 2: Select style with animation preview
+select_style() {
+    local type=$1
+    local current=0
+    local styles
+    local preview_pid=""
+    
+    case "$type" in
+        success) styles=("${SUCCESS_STYLES[@]}") ;;
+        error)   styles=("${ERROR_STYLES[@]}") ;;
+        info)    styles=("${INFO_STYLES[@]}") ;;
+        warning) styles=("${WARNING_STYLES[@]}") ;;
+    esac
+    
+    # Show menu with preview at top
+    show_menu() {
+        clear
+        
+        echo -e "${CYAN}Status Icon Selector - Step 2/2${RESET}"
+        echo "===================================="
+        echo ""
+        echo "Preview:"
+        echo ""
+        
+        # Reserve 2 lines for preview
+        echo ""
+        echo ""
+        
+        echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+        echo ""
+        echo "Select ${type} style (↑/↓ or j/k, Enter to select, q to quit):"
+        echo ""
+        
+        # Compact menu list
+        for i in "${!styles[@]}"; do
+            local style="${styles[$i]}"
+            if [ $i -eq $current ]; then
+                echo -e "  ${GREEN}→ ${style}${RESET}"
+            else
+                echo -e "    ${style}"
+            fi
+        done
+    }
+    
+    # Start preview at top
+    show_preview() {
+        local style=$1
+        # Kill existing preview
+        if [ -n "$preview_pid" ]; then
+            kill $preview_pid 2>/dev/null
+            wait $preview_pid 2>/dev/null
+        fi
+        # Position cursor at preview line and start animation
+        (
+            tput cup 4 0
+            case "$type" in
+                success) SUCCESS_STYLE="$style" success "Preview: Operation completed" ;;
+                error)   ERROR_STYLE="$style" error "Preview: Something failed" ;;
+                info)    INFO_STYLE="$style" info "Preview: Information message" ;;
+                warning) WARNING_STYLE="$style" warning "Preview: Be careful" ;;
+            esac
+        ) &
+        preview_pid=$!
+    }
+    
+    tput civis  # Hide cursor
+    show_menu
+    show_preview "${styles[$current]}"
+    
+    while true; do
+        read -rsn1 key
+        case "$key" in
+            $'\x1b')
+                read -rsn2 key
+                case "$key" in
+                    '[A'|'[D') 
+                        ((current--)); [ $current -lt 0 ] && current=$((${#styles[@]} - 1))
+                        show_menu
+                        show_preview "${styles[$current]}"
+                        ;;
+                    '[B'|'[C') 
+                        ((current++)); [ $current -ge ${#styles[@]} ] && current=0
+                        show_menu
+                        show_preview "${styles[$current]}"
+                        ;;
+                esac
+                ;;
+            'k') 
+                ((current--)); [ $current -lt 0 ] && current=$((${#styles[@]} - 1))
+                show_menu
+                show_preview "${styles[$current]}"
+                ;;
+            'j') 
+                ((current++)); [ $current -ge ${#styles[@]} ] && current=0
+                show_menu
+                show_preview "${styles[$current]}"
+                ;;
+            '') 
+                [ -n "$preview_pid" ] && kill $preview_pid 2>/dev/null
+                tput cnorm  # Show cursor
+                SELECTED_STYLE="${styles[$current]}"
+                return
+                ;;
+            'q'|'Q') 
+                [ -n "$preview_pid" ] && kill $preview_pid 2>/dev/null
+                tput cnorm  # Show cursor
+                clear
+                echo "Cancelled"
+                exit 0
+                ;;
+        esac
+    done
+}
+
+# Save selection
+save_selection() {
+    local type=$1
+    local style=$2
+    local config_file="$HOME/.boostr-config"
+    local var_name=""
+    
+    case "$type" in
+        success) var_name="SUCCESS_STYLE" ;;
+        error)   var_name="ERROR_STYLE" ;;
+        info)    var_name="INFO_STYLE" ;;
+        warning) var_name="WARNING_STYLE" ;;
+    esac
+    
+    # Create or update config
+    touch "$config_file"
+    
+    # Read existing config excluding this var
+    if [ -f "$config_file" ]; then
+        grep -v "^export ${var_name}=" "$config_file" > "${config_file}.tmp" 2>/dev/null || true
+    else
+        : > "${config_file}.tmp"
+    fi
+    
+    # Append new value and restore other exports
+    cat "${config_file}.tmp" > "$config_file"
+    echo "export ${var_name}=\"$style\"" >> "$config_file"
+    rm -f "${config_file}.tmp"
+    
+    # Add to zshrc if not already there
+    if ! grep -q "source.*boostr-config" "$HOME/.zshrc" 2>/dev/null; then
+        echo "" >> "$HOME/.zshrc"
+        echo "# Boostr configuration" >> "$HOME/.zshrc"
+        echo "[ -f ~/.boostr-config ] && source ~/.boostr-config" >> "$HOME/.zshrc"
+    fi
+    
+    clear
+    echo ""
+    echo -e "${GREEN}✓${RESET} ${type} style set to: ${CYAN}$style${RESET}"
+    echo ""
+    echo "Restart your terminal or run: source ~/.zshrc"
+    echo ""
+}
+
+# Main
+main() {
+    select_type
+    local selected_type="$SELECTED_TYPE"
+    select_style "$selected_type"
+    local selected_style="$SELECTED_STYLE"
+    save_selection "$selected_type" "$selected_style"
+}
+
+main

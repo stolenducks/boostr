@@ -1,0 +1,56 @@
+#!/bin/bash
+# Demo all status animation styles
+
+source "$(dirname "$0")/spinner"
+
+echo ""
+echo "Status Animation Styles Demo"
+echo "============================"
+echo ""
+
+# Success styles
+echo "SUCCESS Styles:"
+echo "---------------"
+SUCCESS_STYLE="build" success "build: Builds to checkmark (default)"
+SUCCESS_STYLE="binary" success "binary: Digital/techy"
+SUCCESS_STYLE="box" success "box: Fills box then check"
+SUCCESS_STYLE="spark" success "spark: Sparkle effect"
+SUCCESS_STYLE="wave" success "wave: Wave motion"
+echo ""
+
+# Error styles
+echo "ERROR Styles:"
+echo "-------------"
+ERROR_STYLE="build" error "build: Builds to X (default)"
+ERROR_STYLE="binary" error "binary: Binary fail"
+ERROR_STYLE="cross" error "cross: Plus transforms to X"
+ERROR_STYLE="alert" error "alert: Alert triangle"
+ERROR_STYLE="glitch" error "glitch: Glitch effect"
+echo ""
+
+# Info styles
+echo "INFO Styles:"
+echo "------------"
+INFO_STYLE="build" info "build: Builds to arrow (default)"
+INFO_STYLE="binary" info "binary: Binary data stream"
+INFO_STYLE="arrow" info "arrow: Growing arrow"
+INFO_STYLE="pulse" info "pulse: Pulse to arrow"
+INFO_STYLE="scan" info "scan: Scanning motion"
+echo ""
+
+# Warning styles
+echo "WARNING Styles:"
+echo "---------------"
+WARNING_STYLE="build" warning "build: Builds to exclamation (default)"
+WARNING_STYLE="binary" warning "binary: Question to alert"
+WARNING_STYLE="alert" warning "alert: Triangle alert"
+WARNING_STYLE="flash" warning "flash: Flashing"
+WARNING_STYLE="caution" warning "caution: Caution stripes"
+echo ""
+
+echo "To change styles, set environment variables:"
+echo "  export SUCCESS_STYLE=spark"
+echo "  export ERROR_STYLE=glitch"
+echo "  export INFO_STYLE=binary"
+echo "  export WARNING_STYLE=alert"
+echo ""

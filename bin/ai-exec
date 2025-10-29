@@ -1,6 +1,10 @@
 #!/bin/bash
 # Context-aware AI command executor with safety confirmation
 
+# Load spinner library
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SOURCE_DIR/spinner"
+
 if [ -z "$*" ]; then
     echo "Usage: ai-exec \"describe what you want to do\""
     exit 1
@@ -34,11 +38,17 @@ fi
 
 # If no pattern match, ask AI
 if [ -z "$cmd" ]; then
-    echo "[?] Thinking..."
+    # Start spinner
+    spinner "Generating command" "${SPINNER_STYLE:-box}" &
+    SPINNER_PID=$!
+    
     PROMPT="${CURRENT_DIR}\n${FILES_HERE}\n${RECENT_CMDS}${CONTEXT}\n\nYou are a shell command generator for macOS/zsh. Output ONLY the command, nothing else. No backticks, no markdown, no explanation.\n\nExamples:\n- 'edit zsh config' → nano ~/.zshrc\n- 'show disk usage' → df -h\n- 'find large files' → find . -type f -size +100M\n\nNow generate command for: $*"
-    cmd=$(ollama run llama3.1:8b "$PROMPT" | head -n 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/^`//;s/`$//')
+    cmd=$(ollama run llama3.1:8b "$PROMPT" 2>/dev/null | head -n 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/^`//;s/`$//')
+    
+    # Stop spinner
+    stop_spinner $SPINNER_PID
 else
-    echo "[✓] Pattern matched..."
+    info "Pattern matched"
 fi
 
 # Smart safety checks - block ACTUALLY dangerous patterns
@@ -66,7 +76,7 @@ fi
 # Block if actually dangerous
 if [ "$DANGEROUS" = true ]; then
     echo ""
-    echo "[!] BLOCKED: $WARNING"
+    error "BLOCKED: $WARNING"
     echo "   $cmd"
     echo ""
     echo "This command was blocked for safety. If you really need to run it, type it manually."
@@ -75,7 +85,7 @@ fi
 
 # Show the proposed command
 echo ""
-echo "[>] Proposed command:"
+info "Proposed command:"
 echo "   $cmd"
 echo ""
 
@@ -84,11 +94,11 @@ read -p "Run this command? [y/N] " -n 1 -r
 echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "[>] Executing..."
+    info "Executing..."
     echo ""
     eval "$cmd"
     echo ""
-    echo "[✓] Done!"
+    success "Done!"
 else
-    echo "[×] Cancelled"
+    warning "Cancelled"
 fi
