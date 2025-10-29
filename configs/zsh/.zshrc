@@ -4,7 +4,7 @@ export PATH="$HOME/bin:/opt/homebrew/bin:$PATH"
 # Show greeting on new terminal (not on subshells)
 if [[ -o interactive ]] && [[ -z "$GREETING_SHOWN" ]]; then
     export GREETING_SHOWN=1
-    ~/bin/greeting
+    ~/bin/boostr
 fi
 
 # Simple colored prompt: green > or red > (if last command failed)
