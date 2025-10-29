@@ -12,10 +12,10 @@ autoload -U colors && colors
 setopt PROMPT_SUBST
 PROMPT='%(?.%F{green}.%F{red})>%f '
 
-# AI aliases
-alias ai='~/bin/ai'
-alias ask='~/bin/ai'
-alias doo='~/bin/ai-exec'
+# AI aliases (noglob disables glob expansion so ? and ! work without quotes)
+alias ai='noglob ~/bin/ai'
+alias ask='noglob ~/bin/ai'
+alias doo='noglob ~/bin/ai-exec'
 
 # Ghostty helper
 ghostty-reload() {
