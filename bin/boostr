@@ -14,11 +14,11 @@ cat << "EOF"
 
 EOF
 
-echo -e "${ORANGE}    ██████${RESET}   ██${RED}█${RESET}███   ██${RED}█${RESET}███  ${ORANGE}███████${RESET} ${ORANGE}████████${RESET} ${ORANGE}██████${RESET}  "
-echo -e "${ORANGE}    ██   ██${RESET} ██ ${RED}█${RESET}  ██ ██ ${RED}█${RESET}  ██ ${ORANGE}██${RESET}         ${ORANGE}██${RESET}    ${ORANGE}██   ██${RESET} "
-echo -e "${ORANGE}    ██████${RESET}  ██    ██ ██    ██ ${ORANGE}███████${RESET}    ${ORANGE}██${RESET}    ${ORANGE}██████${RESET}  "
-echo -e "${ORANGE}    ██   ██${RESET} ██ ${RED}█${RESET}  ██ ██ ${RED}█${RESET}  ██      ${ORANGE}██${RESET}    ${ORANGE}██${RESET}    ${ORANGE}██   ██${RESET} "
-echo -e "${ORANGE}    ██████${RESET}   ██${RED}█${RESET}███   ██${RED}█${RESET}███  ${ORANGE}███████${RESET}    ${ORANGE}██${RESET}    ${ORANGE}██   ██${RESET} "
+echo -e "${GRAY}    ██████${RESET}   ██████   ██████  ${GRAY}███████${RESET} ${GRAY}████████${RESET} ${GRAY}██████${RESET}  "
+echo -e "${GRAY}    ██   ██${RESET} ██ ${RED}█${RESET}  ██ ██ ${RED}█${RESET}  ██ ${GRAY}██${RESET}         ${GRAY}██${RESET}    ${GRAY}██   ██${RESET} "
+echo -e "${GRAY}    ██████${RESET}  ██    ██ ██    ██ ${GRAY}███████${RESET}    ${GRAY}██${RESET}    ${GRAY}██████${RESET}  "
+echo -e "${GRAY}    ██   ██${RESET} ██    ██ ██    ██      ${GRAY}██${RESET}    ${GRAY}██${RESET}    ${GRAY}██   ██${RESET} "
+echo -e "${GRAY}    ██████${RESET}   ██████   ██████  ${GRAY}███████${RESET}    ${GRAY}██${RESET}    ${GRAY}██   ██${RESET} "
 echo ""
 
 echo ""
