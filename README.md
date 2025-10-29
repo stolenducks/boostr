@@ -4,6 +4,8 @@
 
 **boostr** combines the speed of [Ghostty](https://ghostty.org) with the power of local AI ([Ollama](https://ollama.com)) to create an intelligent terminal experience that respects your privacy.
 
+> **Project Status:** This is a personal terminal setup that I'm sharing. Fully tested on macOS. Linux support is experimental. Issues and PRs welcome, but support is provided on a best-effort basis.
+
 ```
     ██████   ██████   ██████  ███████ ████████ ██████  
     ██   ██ ██    ██ ██    ██ ██         ██    ██   ██ 
@@ -54,9 +56,12 @@ chmod +x install.sh
 ```
 
 ### Supported Systems
-- ✅ macOS (Intel & Apple Silicon)
-- ✅ Linux (Debian, Ubuntu, Arch, Void)
-- ✅ Requires: zsh, git
+- ✅ **macOS (Intel & Apple Silicon)** - Fully tested and working
+- ⚠️ **Linux** - Experimental (Debian, Ubuntu, Arch, Void)
+  - Install script exists but not fully tested on all distros
+  - Community testing and contributions welcome
+- ❌ **Windows** - Not supported (WSL untested)
+- ✅ **Requires:** zsh, git
 
 ## Usage
 
