@@ -7,16 +7,17 @@ GREEN='\033[0;32m'
 GRAY='\033[0;90m'
 RESET='\033[0m'
 
-# ASCII art - bold lowercase boostr
+# ASCII art - boostr with color gradient
 cat << "EOF"
 
-    ██████   ██████   ██████  ███████ ████████ ██████  
-    ██   ██ ██    ██ ██    ██ ██         ██    ██   ██ 
-    ██████  ██    ██ ██    ██ ███████    ██    ██████  
-    ██   ██ ██    ██ ██    ██      ██    ██    ██   ██ 
-    ██████   ██████   ██████  ███████    ██    ██   ██ 
-
 EOF
+
+echo -e "${CYAN}    ██████${RESET}   ${CYAN}██████${RESET}   ${GRAY}██████${RESET}  ${GRAY}███████${RESET} ${GRAY}████████${RESET} ${GRAY}██████${RESET}  "
+echo -e "${CYAN}    ██   ██${RESET} ${CYAN}██    ██${RESET} ${GRAY}██    ██${RESET} ${GRAY}██${RESET}         ${GRAY}██${RESET}    ${GRAY}██   ██${RESET} "
+echo -e "${CYAN}    ██████${RESET}  ${CYAN}██    ██${RESET} ${GRAY}██    ██${RESET} ${GRAY}███████${RESET}    ${GRAY}██${RESET}    ${GRAY}██████${RESET}  "
+echo -e "${CYAN}    ██   ██${RESET} ${CYAN}██    ██${RESET} ${GRAY}██    ██${RESET}      ${GRAY}██${RESET}    ${GRAY}██${RESET}    ${GRAY}██   ██${RESET} "
+echo -e "${CYAN}    ██████${RESET}   ${CYAN}██████${RESET}   ${GRAY}██████${RESET}  ${GRAY}███████${RESET}    ${GRAY}██${RESET}    ${GRAY}██   ██${RESET} "
+echo ""
 
 echo ""
 echo -e "${GRAY}  $(date '+%A, %B %d %Y - %I:%M %p')${RESET}"
