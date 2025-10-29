@@ -131,7 +131,7 @@ install_configs() {
     # Copy configs
     cp configs/ghostty/config ~/.config/ghostty/config
     cp bin/* ~/bin/
-    chmod +x ~/bin/{ai,ai-exec,greeting}
+    chmod +x ~/bin/{ai,ai-exec,boostr,boostr-spinner,boostr-status}
     
     # Append zsh config
     cat configs/zsh/.zshrc >> ~/.zshrc
