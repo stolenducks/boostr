@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Backups
+*.backup
+*.bak
+*~
+
+# Logs
+*.log
+
+# Local testing
+test/
+.test/
+
+# AI context files (user-specific)
+.ai-conversation-context
+.ai-context

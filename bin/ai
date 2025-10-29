@@ -1,0 +1,58 @@
+#!/bin/bash
+# AI assistant using Ollama with conversation context
+
+CONTEXT_FILE=~/.ai-conversation-context
+MAX_CONTEXT_LINES=100  # Keep last ~50 exchanges
+
+# Check if question needs system info
+QUESTION="$*"
+
+# Handle special commands
+if [[ "$QUESTION" == "clear" ]] || [[ "$QUESTION" == "reset" ]]; then
+    rm -f "$CONTEXT_FILE"
+    echo "[×] Conversation context cleared"
+    exit 0
+fi
+
+if [ -z "$QUESTION" ]; then
+    echo "Usage: ai \"your question\""
+    echo "       ai clear  # Clear conversation history"
+    exit 1
+fi
+
+# For time-related questions, include current time
+if [[ "$QUESTION" =~ "time"|"date"|"when" ]]; then
+    SYSTEM_INFO="Current time: $(date '+%Y-%m-%d %H:%M:%S %Z')\n"
+else
+    SYSTEM_INFO=""
+fi
+
+# Add minimal context only when relevant
+if [[ "$QUESTION" =~ "file"|"directory"|"folder"|"here" ]]; then
+    SYSTEM_INFO+="Current directory: $(pwd)\n"
+fi
+
+# Load conversation history
+CONVERSATION_HISTORY=""
+if [ -f "$CONTEXT_FILE" ]; then
+    CONVERSATION_HISTORY="Previous conversation:\n$(tail -n $MAX_CONTEXT_LINES "$CONTEXT_FILE")\n\n"
+fi
+
+# Build prompt with context
+PROMPT="${SYSTEM_INFO}${CONVERSATION_HISTORY}User: $QUESTION\n\nAnswer directly and concisely:"
+
+# Call ollama and capture response
+RESPONSE=$(ollama run llama3.1:8b "$PROMPT")
+
+# Display response
+echo "$RESPONSE"
+
+# Save to context (keep it concise)
+echo "Q: $QUESTION" >> "$CONTEXT_FILE"
+echo "A: $(echo "$RESPONSE" | head -c 200)..." >> "$CONTEXT_FILE"
+
+# Trim context file if it gets too large
+if [ -f "$CONTEXT_FILE" ]; then
+    tail -n $MAX_CONTEXT_LINES "$CONTEXT_FILE" > "${CONTEXT_FILE}.tmp"
+    mv "${CONTEXT_FILE}.tmp" "$CONTEXT_FILE"
+fi

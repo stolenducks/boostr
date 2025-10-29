@@ -1,0 +1,28 @@
+#!/bin/bash
+# Terminal greeting with ASCII art
+
+# Colors
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+GRAY='\033[0;90m'
+RESET='\033[0m'
+
+# ASCII art - bold lowercase boostr
+cat << "EOF"
+
+    ██████   ██████   ██████  ███████ ████████ ██████  
+    ██   ██ ██    ██ ██    ██ ██         ██    ██   ██ 
+    ██████  ██    ██ ██    ██ ███████    ██    ██████  
+    ██   ██ ██    ██ ██    ██      ██    ██    ██   ██ 
+    ██████   ██████   ██████  ███████    ██    ██   ██ 
+
+EOF
+
+echo ""
+echo -e "${GRAY}  $(date '+%A, %B %d %Y - %I:%M %p')${RESET}"
+echo ""
+echo -e "${CYAN}  Commands:${RESET}"
+echo -e "${GREEN}    ai${RESET} \"question\"     - Ask AI anything"
+echo -e "${GREEN}    doo${RESET} \"command\"     - Generate & run commands"
+echo -e "${GREEN}    ai clear${RESET}          - Reset conversation"
+echo ""

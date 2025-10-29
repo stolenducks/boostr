@@ -1,0 +1,94 @@
+#!/bin/bash
+# Context-aware AI command executor with safety confirmation
+
+if [ -z "$*" ]; then
+    echo "Usage: ai-exec \"describe what you want to do\""
+    exit 1
+fi
+
+# Load context if available
+CONTEXT=""
+if [ -f ~/.ai-context ]; then
+    CONTEXT="\n\nSYSTEM CONTEXT:\n$(cat ~/.ai-context)"
+fi
+
+# Add current directory and recent history
+CURRENT_DIR="Current directory: $(pwd)"
+FILES_HERE="Files here: $(ls -1 | head -10 | tr '\n' ',' || echo 'none')"
+RECENT_CMDS="Recent commands: $(fc -ln -5 2>/dev/null | tail -3 | sed 's/^[[:space:]]*//' | tr '\n' ';' || echo 'none')"
+
+# Pattern matching for common requests (fallback before AI)
+REQUEST="$*"
+cmd=""
+
+# Edit file patterns
+if [[ "$REQUEST" =~ "edit".*("zsh"|"shell"|"bash").*("config"|"rc"|"alias") ]]; then
+    cmd="nano ~/.zshrc"
+elif [[ "$REQUEST" =~ "edit".*("ai-exec"|"ai exec") ]]; then
+    cmd="nano ~/bin/ai-exec"
+elif [[ "$REQUEST" =~ "edit".*"ai".*"script" ]]; then
+    cmd="nano ~/bin/ai"
+elif [[ "$REQUEST" =~ "edit".*("context"|"ai context") ]]; then
+    cmd="nano ~/.ai-context"
+fi
+
+# If no pattern match, ask AI
+if [ -z "$cmd" ]; then
+    echo "[?] Thinking..."
+    PROMPT="${CURRENT_DIR}\n${FILES_HERE}\n${RECENT_CMDS}${CONTEXT}\n\nYou are a shell command generator for macOS/zsh. Output ONLY the command, nothing else. No backticks, no markdown, no explanation.\n\nExamples:\n- 'edit zsh config' → nano ~/.zshrc\n- 'show disk usage' → df -h\n- 'find large files' → find . -type f -size +100M\n\nNow generate command for: $*"
+    cmd=$(ollama run llama3.1:8b "$PROMPT" | head -n 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/^`//;s/`$//')
+else
+    echo "[✓] Pattern matched..."
+fi
+
+# Smart safety checks - block ACTUALLY dangerous patterns
+DANGEROUS=false
+WARNING=""
+
+# Check for dangerous root operations
+if [[ "$cmd" =~ "rm -rf /" ]] || [[ "$cmd" =~ "rm -r /" ]]; then
+    DANGEROUS=true
+    WARNING="Attempting to delete from root directory"
+fi
+
+# Check for dangerous device operations
+if [[ "$cmd" =~ "> /dev/sd" ]] || [[ "$cmd" =~ "dd if=.*of=/dev/" ]]; then
+    DANGEROUS=true
+    WARNING="Attempting to write to disk device"
+fi
+
+# Check for dangerous wildcards in critical paths
+if [[ "$cmd" =~ "rm.*-rf.*/bin" ]] || [[ "$cmd" =~ "rm.*-rf.*/usr" ]] || [[ "$cmd" =~ "rm.*-rf.*/etc" ]]; then
+    DANGEROUS=true
+    WARNING="Attempting to delete system directories"
+fi
+
+# Block if actually dangerous
+if [ "$DANGEROUS" = true ]; then
+    echo ""
+    echo "[!] BLOCKED: $WARNING"
+    echo "   $cmd"
+    echo ""
+    echo "This command was blocked for safety. If you really need to run it, type it manually."
+    exit 1
+fi
+
+# Show the proposed command
+echo ""
+echo "[>] Proposed command:"
+echo "   $cmd"
+echo ""
+
+# Ask for confirmation
+read -p "Run this command? [y/N] " -n 1 -r
+echo ""
+
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "[>] Executing..."
+    echo ""
+    eval "$cmd"
+    echo ""
+    echo "[✓] Done!"
+else
+    echo "[×] Cancelled"
+fi
