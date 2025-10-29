@@ -42,12 +42,12 @@
 
 ### One-Line Install
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/boostr/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/stolenducks/boostr/main/install.sh | bash
 ```
 
 ### Manual Install
 ```bash
-git clone https://github.com/YOUR_USERNAME/boostr.git
+git clone https://github.com/stolenducks/boostr.git
 cd boostr
 chmod +x install.sh
 ./install.sh
