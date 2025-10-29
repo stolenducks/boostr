@@ -5,6 +5,7 @@
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 GRAY='\033[0;90m'
+RED='\033[0;31m'
 RESET='\033[0m'
 
 # ASCII art - boostr with color gradient
@@ -12,11 +13,11 @@ cat << "EOF"
 
 EOF
 
-echo -e "${CYAN}    ██████${RESET}   ██${RED}•${RESET}███${RED}•${RESET}   ${GRAY}██████${RESET}  ${GRAY}███████${RESET} ${GRAY}████████${RESET} ${GRAY}██████${RESET}  "
-echo -e "${CYAN}    ██   ██${RESET} ██    ██ ${GRAY}██    ██${RESET} ${GRAY}██${RESET}         ${GRAY}██${RESET}    ${GRAY}██   ██${RESET} "
-echo -e "${CYAN}    ██████${RESET}  ██    ██ ${GRAY}██    ██${RESET} ${GRAY}███████${RESET}    ${GRAY}██${RESET}    ${GRAY}██████${RESET}  "
-echo -e "${CYAN}    ██   ██${RESET} ██    ██ ${GRAY}██    ██${RESET}      ${GRAY}██${RESET}    ${GRAY}██${RESET}    ${GRAY}██   ██${RESET} "
-echo -e "${CYAN}    ██████${RESET}   ██████   ${GRAY}██████${RESET}  ${GRAY}███████${RESET}    ${GRAY}██${RESET}    ${GRAY}██   ██${RESET} "
+echo -e "${GREEN}    ██████${RESET}   ██${RED}██${RESET}██   ██${RED}██${RESET}██  ${GREEN}███████${RESET} ${GREEN}████████${RESET} ${GREEN}██████${RESET}  "
+echo -e "${GREEN}    ██   ██${RESET} ██    ██ ██    ██ ${GREEN}██${RESET}         ${GREEN}██${RESET}    ${GREEN}██   ██${RESET} "
+echo -e "${GREEN}    ██████${RESET}  ██    ██ ██    ██ ${GREEN}███████${RESET}    ${GREEN}██${RESET}    ${GREEN}██████${RESET}  "
+echo -e "${GREEN}    ██   ██${RESET} ██    ██ ██    ██      ${GREEN}██${RESET}    ${GREEN}██${RESET}    ${GREEN}██   ██${RESET} "
+echo -e "${GREEN}    ██████${RESET}   ██████   ██████  ${GREEN}███████${RESET}    ${GREEN}██${RESET}    ${GREEN}██   ██${RESET} "
 echo ""
 
 echo ""
