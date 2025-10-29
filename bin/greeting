@@ -4,6 +4,7 @@
 # Colors
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
 GRAY='\033[0;90m'
 RED='\033[0;31m'
 RESET='\033[0m'
@@ -13,11 +14,11 @@ cat << "EOF"
 
 EOF
 
-echo -e "${GREEN}    ██████${RESET}   ██${RED}██${RESET}██   ██${RED}██${RESET}██  ${GREEN}███████${RESET} ${GREEN}████████${RESET} ${GREEN}██████${RESET}  "
-echo -e "${GREEN}    ██   ██${RESET} ██    ██ ██    ██ ${GREEN}██${RESET}         ${GREEN}██${RESET}    ${GREEN}██   ██${RESET} "
-echo -e "${GREEN}    ██████${RESET}  ██    ██ ██    ██ ${GREEN}███████${RESET}    ${GREEN}██${RESET}    ${GREEN}██████${RESET}  "
-echo -e "${GREEN}    ██   ██${RESET} ██    ██ ██    ██      ${GREEN}██${RESET}    ${GREEN}██${RESET}    ${GREEN}██   ██${RESET} "
-echo -e "${GREEN}    ██████${RESET}   ██████   ██████  ${GREEN}███████${RESET}    ${GREEN}██${RESET}    ${GREEN}██   ██${RESET} "
+echo -e "${ORANGE}    ██████${RESET}   ██${RED}█${RESET}███   ██${RED}█${RESET}███  ${ORANGE}███████${RESET} ${ORANGE}████████${RESET} ${ORANGE}██████${RESET}  "
+echo -e "${ORANGE}    ██   ██${RESET} ██ ${RED}█${RESET}  ██ ██ ${RED}█${RESET}  ██ ${ORANGE}██${RESET}         ${ORANGE}██${RESET}    ${ORANGE}██   ██${RESET} "
+echo -e "${ORANGE}    ██████${RESET}  ██    ██ ██    ██ ${ORANGE}███████${RESET}    ${ORANGE}██${RESET}    ${ORANGE}██████${RESET}  "
+echo -e "${ORANGE}    ██   ██${RESET} ██ ${RED}█${RESET}  ██ ██ ${RED}█${RESET}  ██      ${ORANGE}██${RESET}    ${ORANGE}██${RESET}    ${ORANGE}██   ██${RESET} "
+echo -e "${ORANGE}    ██████${RESET}   ██${RED}█${RESET}███   ██${RED}█${RESET}███  ${ORANGE}███████${RESET}    ${ORANGE}██${RESET}    ${ORANGE}██   ██${RESET} "
 echo ""
 
 echo ""
