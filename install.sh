@@ -170,7 +170,14 @@ main() {
     echo ""
     
     # Check if Ghostty exists
-    if ! command_exists ghostty; then
+    GHOSTTY_INSTALLED=false
+    if command_exists ghostty; then
+        GHOSTTY_INSTALLED=true
+    elif [ "$OS" = "macos" ] && [ -d "/Applications/Ghostty.app" ]; then
+        GHOSTTY_INSTALLED=true
+    fi
+    
+    if [ "$GHOSTTY_INSTALLED" = false ]; then
         echo -e "${CYAN}[?]${RESET} Ghostty not found. Install it? [y/N]"
         read -n 1 -r
         echo ""
