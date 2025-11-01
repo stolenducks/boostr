@@ -1,19 +1,19 @@
-# boostr Deployment Guide
+# emty Deployment Guide
 
 ## Quick Publish to GitHub
 
 1. **Create GitHub repo:**
    ```bash
-   # Go to github.com and create a new repo named "boostr"
+   # Go to github.com and create a new repo named "emty"
    # Keep it public, don't initialize with README (we already have one)
    ```
 
 2. **Push to GitHub:**
    ```bash
-   cd ~/boostr
+   cd ~/emty
    git branch -M main
-   git commit -m "Initial commit: boostr v1.0"
-   git remote add origin https://github.com/YOUR_USERNAME/boostr.git
+   git commit -m "Initial commit: emty v1.0"
+   git remote add origin https://github.com/YOUR_USERNAME/emty.git
    git push -u origin main
    ```
 
@@ -30,7 +30,7 @@
 
 Test the installer on a fresh system (or VM):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/boostr/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/emty/main/install.sh | bash
 ```
 
 ## Creating a Release
@@ -44,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/boostr/main/install.s
 2. **Create release on GitHub:**
    - Go to your repo → Releases → Draft a new release
    - Choose tag v1.0.0
-   - Title: "boostr v1.0.0"
+   - Title: "emty v1.0.0"
    - Description: Copy key features from README
 
 ## Optional: Homebrew Formula
@@ -53,9 +53,9 @@ For easier macOS installation, create a Homebrew tap:
 
 ```bash
 # Create tap repo
-gh repo create homebrew-boostr --public
+gh repo create homebrew-emty --public
 
-# Create Formula/boostr.rb
+# Create Formula/emty.rb
 # See: https://docs.brew.sh/Formula-Cookbook
 ```
 

@@ -1,0 +1,142 @@
+#!/bin/bash
+# Interactive Ghostty theme selector for emty
+
+# Colors for menu
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+GRAY='\033[0;90m'
+RESET='\033[0m'
+
+CONFIG_FILE="$HOME/Library/Application Support/com.mitchellh.ghostty/config"
+
+# Curated popular themes with color previews
+THEMES=(
+    "Catppuccin Mocha"
+    "Catppuccin Latte"
+    "Rose Pine"
+    "Rose Pine Dawn"
+    "TokyoNight Night"
+    "TokyoNight Day"
+    "Dracula"
+    "Nord"
+    "Gruvbox Dark"
+    "Gruvbox Light"
+    "Atom One Dark"
+    "Atom One Light"
+    "Solarized Dark"
+    "Solarized Light"
+    "Monokai Pro"
+    "Night Owl"
+    "Ayu"
+    "Ayu Light"
+    "Alabaster"
+    "Afterglow"
+)
+
+# Color previews with background (format: bg color, then foreground dots)
+get_preview() {
+    case "$1" in
+        "Catppuccin Mocha") echo "\033[48;5;235m \033[38;5;147m●\033[38;5;183m●\033[38;5;116m●\033[38;5;150m● \033[0m" ;;
+        "Catppuccin Latte") echo "\033[48;5;231m \033[38;5;167m●\033[38;5;175m●\033[38;5;179m●\033[38;5;71m● \033[0m" ;;
+        "Rose Pine") echo "\033[48;5;235m \033[38;5;168m●\033[38;5;139m●\033[38;5;109m●\033[38;5;108m● \033[0m" ;;
+        "Rose Pine Dawn") echo "\033[48;5;231m \033[38;5;174m●\033[38;5;132m●\033[38;5;24m●\033[38;5;65m● \033[0m" ;;
+        "TokyoNight Night") echo "\033[48;5;234m \033[38;5;111m●\033[38;5;183m●\033[38;5;158m●\033[38;5;150m● \033[0m" ;;
+        "TokyoNight Day") echo "\033[48;5;231m \033[38;5;33m●\033[38;5;69m●\033[38;5;121m●\033[38;5;113m● \033[0m" ;;
+        "Dracula") echo "\033[48;5;235m \033[38;5;141m●\033[38;5;212m●\033[38;5;117m●\033[38;5;228m● \033[0m" ;;
+        "Nord") echo "\033[48;5;236m \033[38;5;109m●\033[38;5;110m●\033[38;5;144m●\033[38;5;174m● \033[0m" ;;
+        "Gruvbox Dark") echo "\033[48;5;235m \033[38;5;208m●\033[38;5;214m●\033[38;5;142m●\033[38;5;109m● \033[0m" ;;
+        "Gruvbox Light") echo "\033[48;5;230m \033[38;5;124m●\033[38;5;166m●\033[38;5;106m●\033[38;5;72m● \033[0m" ;;
+        "Atom One Dark") echo "\033[48;5;235m \033[38;5;204m●\033[38;5;114m●\033[38;5;180m●\033[38;5;39m● \033[0m" ;;
+        "Atom One Light") echo "\033[48;5;231m \033[38;5;161m●\033[38;5;35m●\033[38;5;166m●\033[38;5;33m● \033[0m" ;;
+        "Solarized Dark") echo "\033[48;5;235m \033[38;5;33m●\033[38;5;37m●\033[38;5;64m●\033[38;5;136m● \033[0m" ;;
+        "Solarized Light") echo "\033[48;5;230m \033[38;5;33m●\033[38;5;125m●\033[38;5;61m●\033[38;5;166m● \033[0m" ;;
+        "Monokai Pro") echo "\033[48;5;234m \033[38;5;197m●\033[38;5;148m●\033[38;5;81m●\033[38;5;221m● \033[0m" ;;
+        "Night Owl") echo "\033[48;5;233m \033[38;5;39m●\033[38;5;204m●\033[38;5;114m●\033[38;5;221m● \033[0m" ;;
+        "Ayu") echo "\033[48;5;234m \033[38;5;215m●\033[38;5;173m●\033[38;5;109m●\033[38;5;150m● \033[0m" ;;
+        "Ayu Light") echo "\033[48;5;231m \033[38;5;208m●\033[38;5;166m●\033[38;5;30m●\033[38;5;64m● \033[0m" ;;
+        "Alabaster") echo "\033[48;5;231m \033[38;5;237m●\033[38;5;239m●\033[38;5;241m●\033[38;5;243m● \033[0m" ;;
+        "Afterglow") echo "\033[48;5;234m \033[38;5;167m●\033[38;5;179m●\033[38;5;114m●\033[38;5;117m● \033[0m" ;;
+        *) echo " ●●●● " ;;
+    esac
+}
+
+# Show menu with preview
+show_menu() {
+    local current=$1
+    
+    clear
+    echo ""
+    echo -e "${CYAN}Ghostty Theme Selector${RESET}"
+    echo "====================="
+    echo ""
+    echo "↑/↓ or j/k to navigate, Enter to apply, q to quit"
+    echo "${#THEMES[@]} curated themes"
+    echo ""
+    
+    for ((i=0; i<${#THEMES[@]}; i++)); do
+        local theme="${THEMES[$i]}"
+        local preview="$(get_preview "$theme")"
+        
+        if [ $i -eq $current ]; then
+            echo -e "  ${GREEN}→ ${theme}${RESET} ${preview}"
+        else
+            echo -e "    ${theme} ${preview}"
+        fi
+    done
+}
+
+# Apply theme
+apply_theme() {
+    local theme=$1
+    local theme_config="theme = $theme"
+    
+    if [ ! -f "$CONFIG_FILE" ]; then
+        mkdir -p "$(dirname "$CONFIG_FILE")"
+        echo "$theme_config" > "$CONFIG_FILE"
+    else
+        if grep -q "^theme = " "$CONFIG_FILE"; then
+            sed -i.bak "s|^theme = .*|$theme_config|" "$CONFIG_FILE"
+            rm -f "${CONFIG_FILE}.bak"
+        else
+            echo "$theme_config" >> "$CONFIG_FILE"
+        fi
+        
+        # Remove background-opacity if it exists
+        sed -i.bak "/^background-opacity = /d" "$CONFIG_FILE" 2>/dev/null
+        rm -f "${CONFIG_FILE}.bak"
+    fi
+    
+    clear
+    echo ""
+    echo -e "${GREEN}✓${RESET} Theme applied: ${CYAN}$theme${RESET}"
+    echo ""
+    echo "Close and reopen Ghostty to see changes."
+    echo ""
+}
+
+# Main
+main() {
+    local current=0
+    
+    show_menu $current
+    
+    while true; do
+        read -rsn1 key
+        
+        case "$key" in
+            $'\x1b')
+                read -rsn2 key
+                case "$key" in
+                    '[A'|'[D') ((current--)); [ $current -lt 0 ] && current=$((${#THEMES[@]} - 1)); show_menu $current ;;
+                    '[B'|'[C') ((current++)); [ $current -ge ${#THEMES[@]} ] && current=0; show_menu $current ;;
+                esac
+                ;;
+            'k') ((current--)); [ $current -lt 0 ] && current=$((${#THEMES[@]} - 1)); show_menu $current ;;
+            'j') ((current++)); [ $current -ge ${#THEMES[@]} ] && current=0; show_menu $current ;;
+            '') apply_theme "${THEMES[$current]}"; break ;;
+            'q'|'Q') clear; echo "Cancelled"; exit 0 ;;
+        esac
+    done
+}
+
+main

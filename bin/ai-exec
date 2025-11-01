@@ -5,21 +5,24 @@
 SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SOURCE_DIR/spinner"
 
+# Load user config
+[ -f ~/.emty-config ] && source ~/.emty-config
+
 if [ -z "$*" ]; then
     echo "Usage: ai-exec \"describe what you want to do\""
     exit 1
 fi
 
-# Load context if available
+# Load shared conversation context from ai command
 CONTEXT=""
-if [ -f ~/.ai-context ]; then
-    CONTEXT="\n\nSYSTEM CONTEXT:\n$(cat ~/.ai-context)"
+if [ -f ~/.ai-conversation-context ]; then
+    CONTEXT="\n\nRECENT CONVERSATION:\n$(tail -n 20 ~/.ai-conversation-context)"
 fi
 
-# Add current directory and recent history
+# Add current directory with full file paths
 CURRENT_DIR="Current directory: $(pwd)"
-FILES_HERE="Files here: $(ls -1 | head -10 | tr '\n' ',' || echo 'none')"
-RECENT_CMDS="Recent commands: $(fc -ln -5 2>/dev/null | tail -3 | sed 's/^[[:space:]]*//' | tr '\n' ';' || echo 'none')"
+FILES_HERE="Files in current directory:\n$(ls -1 | head -10 | while read f; do echo "  $(pwd)/$f"; done || echo 'none')"
+RECENT_CMDS="Recent command output: $(fc -ln -1 2>/dev/null | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
 
 # Pattern matching for common requests (fallback before AI)
 REQUEST="$*"
@@ -38,12 +41,49 @@ fi
 
 # If no pattern match, ask AI
 if [ -z "$cmd" ]; then
+    # Auto-discover LM Studio on network
+    USE_LM_STUDIO=false
+    LM_STUDIO_URL=""
+    
+    # Check common LM Studio locations
+    for host in "localhost" "127.0.0.1" "192.168.1.92" "$(hostname -I 2>/dev/null | awk '{print $1}')"; do
+        [ -z "$host" ] && continue
+        for port in 1234 8080; do
+            if curl -s --max-time 1 "http://${host}:${port}/v1/models" > /dev/null 2>&1; then
+                LM_STUDIO_URL="http://${host}:${port}"
+                USE_LM_STUDIO=true
+                break 2
+            fi
+        done
+    done
+    
     # Start spinner
     spinner "Generating command" "${SPINNER_STYLE:-box}" &
     SPINNER_PID=$!
     
-    PROMPT="${CURRENT_DIR}\n${FILES_HERE}\n${RECENT_CMDS}${CONTEXT}\n\nYou are a shell command generator for macOS/zsh. Generate ONLY valid, executable shell commands.\n\nRULES:\n1. Output ONLY the command - no markdown, no backticks, no explanation\n2. Use proper shell syntax - validate parentheses, quotes, and brackets\n3. Use simple, tested Unix commands\n4. For dates, use: \$(date +%Y%m%d) or \$(date +%Y-%m-%d)\n5. Avoid complex arithmetic expressions\n\nExamples:\n- 'organize desktop by date' → mkdir ~/Desktop/\"\$(date +%Y-%m-%d)\" && mv ~/Desktop/* ~/Desktop/\"\$(date +%Y-%m-%d)\"/\n- 'show disk usage' → df -h\n- 'find large files' → find . -type f -size +100M\n- 'list files by size' → ls -lhS\n\nTask: $*\nCommand:"
-    cmd=$(ollama run llama3.1:8b "$PROMPT" 2>/dev/null | head -n 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/^`//;s/`$//')
+    PROMPT="${CURRENT_DIR}\n${FILES_HERE}\n${RECENT_CMDS}${CONTEXT}\n\nYou are a shell command generator for macOS/zsh. Generate ONLY valid, executable shell commands.\n\nRULES:\n1. Output ONLY the command - no markdown, no backticks, no explanation, no preamble\n2. Use proper shell syntax - validate parentheses, quotes, and brackets\n3. Use simple, tested Unix commands\n4. For dates, use: \$(date +%Y%m%d) or \$(date +%Y-%m-%d)\n5. If user says 'run X command', output exactly: X\n\nExamples:\n- 'run ls' → ls\n- 'organize desktop by date' → mkdir ~/Desktop/\"\$(date +%Y-%m-%d)\" && mv ~/Desktop/* ~/Desktop/\"\$(date +%Y-%m-%d)\"/\n- 'show disk usage' → df -h\n- 'find large files' → find . -type f -size +100M\n- 'list files by size' → ls -lhS\n\nTask: $*\nCommand:"
+    
+    # Call AI (LM Studio or Ollama)
+    if [ "$USE_LM_STUDIO" = true ]; then
+        # Escape prompt for JSON
+        ESCAPED_PROMPT=$(echo "$PROMPT" | jq -Rs .)
+        
+        cmd=$(curl -s "${LM_STUDIO_URL}/v1/chat/completions" \
+            -H "Content-Type: application/json" \
+            -d "{
+                \"model\": \"openai/gpt-oss-20b\",
+                \"messages\": [{\"role\": \"user\", \"content\": ${ESCAPED_PROMPT}}],
+                \"temperature\": 0.3,
+                \"max_tokens\": 100
+            }" 2>/dev/null | jq -r '.choices[0].message.content // empty' 2>/dev/null | grep -v '^[[:space:]]*$' | head -n 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/^`//;s/`$//;s/^Based.*://;s/^Command://')
+        
+        # If empty or failed, fall back to Ollama
+        if [ -z "$cmd" ]; then
+            cmd=$(ollama run qwen2.5:7b "$PROMPT" 2>/dev/null | grep -v '^[[:space:]]*$' | head -n 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/^`//;s/`$//;s/^Based.*://;s/^Command://')
+        fi
+    else
+        cmd=$(ollama run qwen2.5:7b "$PROMPT" 2>/dev/null | grep -v '^[[:space:]]*$' | head -n 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/^`//;s/`$//;s/^Based.*://;s/^Command://')
+    fi
     
     # Stop spinner
     stop_spinner $SPINNER_PID

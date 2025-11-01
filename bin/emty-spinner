@@ -1,5 +1,5 @@
 #!/bin/bash
-# Interactive spinner style selector for boostr
+# Interactive spinner style selector for emty
 
 source "$(dirname "$0")/spinner"
 
@@ -65,7 +65,7 @@ start_preview() {
 # Save selection to config
 save_selection() {
     local style=$1
-    local config_file="$HOME/.boostr-config"
+    local config_file="$HOME/.emty-config"
     
     # Create or update config
     touch "$config_file"
@@ -83,17 +83,17 @@ save_selection() {
     rm -f "${config_file}.tmp"
     
     # Add to zshrc if not already there
-    if ! grep -q "source.*boostr-config" "$HOME/.zshrc" 2>/dev/null; then
+    if ! grep -q "source.*emty-config" "$HOME/.zshrc" 2>/dev/null; then
         echo "" >> "$HOME/.zshrc"
-        echo "# Boostr configuration" >> "$HOME/.zshrc"
-        echo "[ -f ~/.boostr-config ] && source ~/.boostr-config" >> "$HOME/.zshrc"
+        echo "# Emty configuration" >> "$HOME/.zshrc"
+        echo "[ -f ~/.emty-config ] && source ~/.emty-config" >> "$HOME/.zshrc"
     fi
     
     echo ""
     echo -e "${GREEN}✓${RESET} Spinner style set to: ${CYAN}$style${RESET}"
+    echo -e "${GRAY}Changes applied automatically!${RESET}"
     echo ""
-    echo "Restart your terminal or run: source ~/.zshrc"
-    echo ""
+    sleep 1
 }
 
 # Main interactive loop

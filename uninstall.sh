@@ -1,5 +1,5 @@
 #!/bin/bash
-# boostr uninstaller
+# emty uninstaller
 
 set -e
 
@@ -8,12 +8,12 @@ GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 RESET='\033[0m'
 
-echo -e "${CYAN}boostr Uninstaller${RESET}"
+echo -e "${CYAN}emty Uninstaller${RESET}"
 echo ""
 echo -e "${RED}This will remove:${RESET}"
 echo "  - Ghostty config (~/.config/ghostty)"
 echo "  - AI scripts (~/bin/ai, ~/bin/ai-exec, ~/bin/greeting)"
-echo "  - boostr zsh config (from ~/.zshrc)"
+echo "  - emty zsh config (from ~/.zshrc)"
 echo ""
 echo -e "${CYAN}This will NOT remove:${RESET}"
 echo "  - Ghostty application"
@@ -31,7 +31,7 @@ fi
 echo -e "${CYAN}[>]${RESET} Removing configs..."
 
 # Backup before removal
-BACKUP_DIR=~/.boostr-backup-$(date +%Y%m%d-%H%M%S)
+BACKUP_DIR=~/.emty-backup-$(date +%Y%m%d-%H%M%S)
 mkdir -p "$BACKUP_DIR"
 
 # Backup and remove Ghostty config
@@ -48,11 +48,11 @@ if [ -f ~/bin/ai ]; then
     echo -e "${GREEN}[✓]${RESET} AI scripts removed"
 fi
 
-# Remove boostr section from .zshrc
+# Remove emty section from .zshrc
 if [ -f ~/.zshrc ]; then
     cp ~/.zshrc "$BACKUP_DIR/.zshrc"
-    # Remove lines between "# boostr" and the end of boostr config
-    sed -i.bak '/# boostr - minimal zsh configuration/,/# Optional: Load zsh-syntax-highlighting/d' ~/.zshrc
+    # Remove lines between "# emty" and the end of emty config
+    sed -i.bak '/# emty - minimal zsh configuration/,/# Optional: Load zsh-syntax-highlighting/d' ~/.zshrc
     rm ~/.zshrc.bak 2>/dev/null || true
     echo -e "${GREEN}[✓]${RESET} zsh config cleaned"
 fi

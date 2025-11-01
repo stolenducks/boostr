@@ -1,0 +1,117 @@
+#!/bin/bash
+# Terminal greeting with ASCII art
+
+# Colors
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+GRAY='\033[0;90m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+RESET='\033[0m'
+
+# Load user's configured status styles from ~/.emty-config
+[ -f ~/.emty-config ] && source ~/.emty-config
+
+# Get final icon for each status type based on user's configured style
+get_final_icon() {
+    local type=$1
+    local style=$2
+    case "$type" in
+        success)
+            case "$style" in
+                build)  echo "[✓]" ;;
+                binary) echo "[OK]" ;;
+                box)    echo "[■]" ;;
+                spark)  echo "[★]" ;;
+                wave)   echo "[≡]" ;;
+                *)      echo "[✓]" ;;
+            esac
+            ;;
+        error)
+            case "$style" in
+                build)  echo "[×]" ;;
+                binary) echo "[XX]" ;;
+                cross)  echo "[✖]" ;;
+                alert)  echo "[■]" ;;
+                glitch) echo "[☠]" ;;
+                *)      echo "[×]" ;;
+            esac
+            ;;
+        info)
+            case "$style" in
+                build)  echo "[>]" ;;
+                binary) echo "[►]" ;;
+                arrow)  echo "[⇨]" ;;
+                pulse)  echo "[◉]" ;;
+                scan)   echo "[►]" ;;
+                *)      echo "[>]" ;;
+            esac
+            ;;
+        warning)
+            case "$style" in
+                build)   echo "[!]" ;;
+                binary)  echo "[‼]" ;;
+                alert)   echo "[▲]" ;;
+                flash)   echo "[⚠]" ;;
+                caution) echo "[X]" ;;
+                *)       echo "[!]" ;;
+            esac
+            ;;
+    esac
+}
+
+# Get user's configured icons (or defaults)
+SUCCESS_ICON=$(get_final_icon "success" "${SUCCESS_STYLE:-build}")
+ERROR_ICON=$(get_final_icon "error" "${ERROR_STYLE:-build}")
+INFO_ICON=$(get_final_icon "info" "${INFO_STYLE:-build}")
+WARNING_ICON=$(get_final_icon "warning" "${WARNING_STYLE:-build}")
+
+# ASCII art - emty with color gradient
+cat << "EOF"
+
+EOF
+
+# Previous gradient block style (commented out)
+# echo -e "  ▒█████████▓▒░   ▒▓██████▓▒░   ▒▓██████▓▒░    ▒▓██████████████████████▓▒▒▓███████▓▒░  "
+# echo -e "   ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░           ▒▓█▓▒░    ▒▓█▓▒░ ▒▓█▓▒░ "
+# echo -e "   ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░           ▒▓█▓▒░    ▒▓█▓▒░ ▒▓█▓▒░ "
+# echo -e "   ▒▓███████▓▒░  ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░  ▒▓███████▓▒░    ▒▓█▓▒░    ▒▓███████▓▒░  "
+# echo -e "   ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░        ▒▓█▓▒░   ▒▓█▓▒░    ▒▓█▓▒░▒▓█▓▒░ "
+# echo -e "   ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░ ▒▓█▓▒░        ▒▓█▓▒░   ▒▓█▓▒░    ▒▓█▓▒░  ▒▓█▓▒░ "
+# echo -e "  ▒█████████▓▒░   ▒▓██████▓▒░   ▒▓██████▓▒░  ▒▓████████▓▒░    ▒▓█▓▒░    ▒▓█▓▒░  ▒▓██▒░${RESET} "
+
+# Minimal block style (commented out)
+# echo -e "${GRAY}▖ ▌       ▗   "
+# echo -e "▝▖▛▌▛▌▛▌▛▘▜▘▛▘"
+# echo -e "▞ ▙▌▙▌▙▌▄▌▐▖▌${RESET} "
+
+# Slashes ASCII art (no color)
+cat << "EOF"
+__/\\\\\\\\\\\\\\\___/\\\\____________/\\\\___/\\\\\\\\\\\\\\\___/\\\________/\\\_        
+__\/\\\///////////___\/\\\\\\________/\\\\\\__\///////\\\/////___\///\\\____/\\\/__
+___\/\\\______________\/\\\//\\\____/\\\//\\\________\/\\\__________\///\\\/\\\/____
+____\/\\\\\\\\\\\______\/\\\\///\\\/\\\/_\/\\\________\/\\\____________\///\\\/______
+_____\/\\\///////_______\/\\\__\///\\\/___\/\\\________\/\\\______________\/\\\_______
+______\/\\\______________\/\\\____\///_____\/\\\________\/\\\______________\/\\\_______
+_______\/\\\______________\/\\\_____________\/\\\________\/\\\______________\/\\\_______
+________\/\\\\\\\\\\\\\\\__\/\\\_____________\/\\\________\/\\\______________\/\\\___/\\\ 
+_________\///////////////___\///______________\///_________\///_______________\///___\///_
+EOF
+echo ""
+
+echo ""
+echo -e "  ${GRAY}v1.0.0${RESET} | $(date '+%b %d, %I:%M %p')${RESET}"
+echo ""
+echo -e "  ${CYAN}Core Commands:${RESET}"
+echo -e "    ${GREEN}ask${RESET} \"question\"     - Ask AI anything (with context)"
+echo -e "    ${GREEN}doo${RESET} \"task\"         - Generate & run commands"
+echo ""
+echo -e "  ${CYAN}Utilities:${RESET}"
+echo -e "    ${GREEN}emty${RESET}               - Show this greeting"
+echo -e "    ${GREEN}emty-settings${RESET}      - Customize all styles & themes"
+echo ""
+echo -e "  ${CYAN}Status Symbols:${RESET}"
+echo -e "    ${GREEN}${SUCCESS_ICON}${RESET} Success  ${RED}${ERROR_ICON}${RESET} Error  ${CYAN}${INFO_ICON}${RESET} Info  ${YELLOW}${WARNING_ICON}${RESET} Warning"
+echo ""
+echo -e "  ${GRAY}Type 'ask clear' to reset conversation • Context saved across sessions${RESET}"
+echo ""

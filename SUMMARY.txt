@@ -5,7 +5,7 @@
 
 PROJECT STRUCTURE:
 ------------------
-boostr/
+emty/
 ├── README.md              ✅ Main documentation with features, install, usage
 ├── LICENSE                ✅ MIT License
 ├── .gitignore            ✅ Configured for macOS/Linux
@@ -49,10 +49,10 @@ WHAT'S WORKING:
 
 NEXT STEPS TO PUBLISH:
 ----------------------
-1. Create GitHub repo named "boostr"
+1. Create GitHub repo named "emty"
 2. git branch -M main
-3. git commit -m "Initial commit: boostr v1.0"
-4. git remote add origin https://github.com/YOUR_USERNAME/boostr.git
+3. git commit -m "Initial commit: emty v1.0"
+4. git remote add origin https://github.com/YOUR_USERNAME/emty.git
 5. git push -u origin main
 6. Update YOUR_USERNAME in README.md
 7. Create release v1.0.0
@@ -60,7 +60,7 @@ NEXT STEPS TO PUBLISH:
 
 TEST COMMAND:
 -------------
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/boostr/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/emty/main/install.sh | bash
 
 READY TO DEPLOY? YES! ✅
 

@@ -1,0 +1,271 @@
+#!/bin/bash
+# Unified settings menu for emty customization
+
+source "$(dirname "$0")/spinner"
+
+# Colors
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+GRAY='\033[0;90m'
+YELLOW='\033[0;33m'
+RESET='\033[0m'
+
+CATEGORIES=("Terminal Theme" "Chat Border Style" "Prompt Style" "Spinner Style" "Status Icons" "Exit")
+CURRENT=0
+
+show_main_menu() {
+    clear
+    echo ""
+    echo -e "${CYAN}╭─────────────────────────────────╮${RESET}"
+    echo -e "${CYAN}│${RESET}      ${CYAN}Emty Settings${RESET}         ${CYAN}│${RESET}"
+    echo -e "${CYAN}╰─────────────────────────────────╯${RESET}"
+    echo ""
+    echo "↑/↓ or j/k to navigate, Enter to select"
+    echo ""
+    
+    for i in "${!CATEGORIES[@]}"; do
+        if [ $i -eq $CURRENT ]; then
+            echo -e "  ${GREEN}→ ${CATEGORIES[$i]}${RESET}"
+        else
+            echo -e "    ${GRAY}${CATEGORIES[$i]}${RESET}"
+        fi
+    done
+    echo ""
+}
+
+# Main menu loop
+main_menu() {
+    tput civis  # Hide cursor
+    
+    while true; do
+        show_main_menu
+        
+        read -rsn1 key
+        case "$key" in
+            $'\x1b')
+                read -rsn2 key
+                case "$key" in
+                    '[A'|'[D') ((CURRENT--)); [ $CURRENT -lt 0 ] && CURRENT=$((${#CATEGORIES[@]} - 1)) ;;
+                    '[B'|'[C') ((CURRENT++)); [ $CURRENT -ge ${#CATEGORIES[@]} ] && CURRENT=0 ;;
+                esac
+                ;;
+            'k') ((CURRENT--)); [ $CURRENT -lt 0 ] && CURRENT=$((${#CATEGORIES[@]} - 1)) ;;
+            'j') ((CURRENT++)); [ $CURRENT -ge ${#CATEGORIES[@]} ] && CURRENT=0 ;;
+            '') 
+                case $CURRENT in
+                    0) tput cnorm; exec ~/bin/emty-theme ;;
+                    1) tput cnorm; border_style_menu ;;
+                    2) tput cnorm; prompt_style_menu ;;
+                    3) tput cnorm; exec ~/bin/emty-spinner ;;
+                    4) tput cnorm; exec ~/bin/emty-status ;;
+                    5) tput cnorm; clear; exit 0 ;;
+                esac
+                ;;
+            'q'|'Q') tput cnorm; clear; exit 0 ;;
+        esac
+    done
+}
+
+# Border style submenu
+border_style_menu() {
+    local styles=("rounded" "heavy" "double" "simple" "ascii")
+    local current=0
+    
+    # Border examples
+    declare -A borders
+    borders[rounded]="╭─╮│╰─╯"
+    borders[heavy]="┏━┓┃┗━┛"
+    borders[double]="╔═╗║╚═╝"
+    borders[simple]="┌─┐│└─┘"
+    borders[ascii]="+--+|+--+"
+    
+    while true; do
+        clear
+        echo ""
+        echo -e "${CYAN}Chat Border Style${RESET}"
+        echo "═══════════════════"
+        echo ""
+        echo "Preview:"
+        echo ""
+        
+        # Show preview of selected style
+        local style="${styles[$current]}"
+        local chars="${borders[$style]}"
+        case "$style" in
+            rounded)
+                echo -e "  ${CYAN}╭─────────────────────╮${RESET}"
+                echo -e "  ${CYAN}│${RESET} Hello from emty!    ${CYAN}│${RESET}"
+                echo -e "  ${CYAN}╰─────────────────────╯${RESET}"
+                ;;
+            heavy)
+                echo -e "  ${CYAN}┏━━━━━━━━━━━━━━━━━━━━━┓${RESET}"
+                echo -e "  ${CYAN}┃${RESET} Hello from emty!    ${CYAN}┃${RESET}"
+                echo -e "  ${CYAN}┗━━━━━━━━━━━━━━━━━━━━━┛${RESET}"
+                ;;
+            double)
+                echo -e "  ${CYAN}╔═════════════════════╗${RESET}"
+                echo -e "  ${CYAN}║${RESET} Hello from emty!    ${CYAN}║${RESET}"
+                echo -e "  ${CYAN}╚═════════════════════╝${RESET}"
+                ;;
+            simple)
+                echo -e "  ${CYAN}┌─────────────────────┐${RESET}"
+                echo -e "  ${CYAN}│${RESET} Hello from emty!    ${CYAN}│${RESET}"
+                echo -e "  ${CYAN}└─────────────────────┘${RESET}"
+                ;;
+            ascii)
+                echo -e "  ${CYAN}+---------------------+${RESET}"
+                echo -e "  ${CYAN}|${RESET} Hello from emty!    ${CYAN}|${RESET}"
+                echo -e "  ${CYAN}+---------------------+${RESET}"
+                ;;
+        esac
+        
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        echo "Select style (↑/↓ or j/k, Enter to select, q to back):"
+        echo ""
+        
+        for i in "${!styles[@]}"; do
+            if [ $i -eq $current ]; then
+                echo -e "  ${GREEN}→ ${styles[$i]}${RESET}"
+            else
+                echo -e "    ${styles[$i]}"
+            fi
+        done
+        
+        read -rsn1 key
+        case "$key" in
+            $'\x1b')
+                read -rsn2 key
+                case "$key" in
+                    '[A'|'[D') ((current--)); [ $current -lt 0 ] && current=$((${#styles[@]} - 1)) ;;
+                    '[B'|'[C') ((current++)); [ $current -ge ${#styles[@]} ] && current=0 ;;
+                esac
+                ;;
+            'k') ((current--)); [ $current -lt 0 ] && current=$((${#styles[@]} - 1)) ;;
+            'j') ((current++)); [ $current -ge ${#styles[@]} ] && current=0 ;;
+            '') save_border_style "${styles[$current]}"; return ;;
+            'q'|'Q') return ;;
+        esac
+    done
+}
+
+save_border_style() {
+    local style=$1
+    local config_file="$HOME/.emty-config"
+    
+    touch "$config_file"
+    
+    # Remove old BORDER_STYLE
+    if [ -f "$config_file" ]; then
+        grep -v '^export BORDER_STYLE=' "$config_file" > "${config_file}.tmp" 2>/dev/null || true
+    else
+        : > "${config_file}.tmp"
+    fi
+    
+    # Add new style
+    cat "${config_file}.tmp" > "$config_file"
+    echo "export BORDER_STYLE=\"$style\"" >> "$config_file"
+    rm -f "${config_file}.tmp"
+    
+    clear
+    echo ""
+    echo -e "${GREEN}✓${RESET} Border style set to: ${CYAN}$style${RESET}"
+    echo -e "${GRAY}Changes applied automatically!${RESET}"
+    echo ""
+    sleep 1
+}
+
+# Prompt style submenu
+prompt_style_menu() {
+    local styles=("arrow" "chevron" "classic" "minimal" "powerline")
+    local current=0
+    
+    # Prompt examples
+    declare -A prompts
+    prompts[arrow]="~/emty ❯"
+    prompts[chevron]="~/emty ›"
+    prompts[classic]="~/emty >"
+    prompts[minimal]="~/emty ·"
+    prompts[powerline]="~/emty "
+    
+    declare -A descriptions
+    descriptions[arrow]="Modern arrow (❯) - recommended"
+    descriptions[chevron]="Chevron (›) - subtle"
+    descriptions[classic]="Classic angle (>) - traditional"
+    descriptions[minimal]="Minimal dot (·) - clean"
+    descriptions[powerline]="Powerline () - fancy"
+    
+    while true; do
+        clear
+        echo ""
+        echo -e "${CYAN}Prompt Cursor Style${RESET}"
+        echo "═══════════════════"
+        echo ""
+        echo "Preview:"
+        echo ""
+        
+        # Show preview of selected style
+        local style="${styles[$current]}"
+        echo -e "  ${CYAN}${prompts[$style]}${RESET}"
+        echo -e "  ${GRAY}${descriptions[$style]}${RESET}"
+        
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        echo "Select style (↑/↓ or j/k, Enter to select, q to back):"
+        echo ""
+        
+        for i in "${!styles[@]}"; do
+            if [ $i -eq $current ]; then
+                echo -e "  ${GREEN}→ ${styles[$i]}${RESET}"
+            else
+                echo -e "    ${styles[$i]}"
+            fi
+        done
+        
+        read -rsn1 key
+        case "$key" in
+            $'\x1b')
+                read -rsn2 key
+                case "$key" in
+                    '[A'|'[D') ((current--)); [ $current -lt 0 ] && current=$((${#styles[@]} - 1)) ;;
+                    '[B'|'[C') ((current++)); [ $current -ge ${#styles[@]} ] && current=0 ;;
+                esac
+                ;;
+            'k') ((current--)); [ $current -lt 0 ] && current=$((${#styles[@]} - 1)) ;;
+            'j') ((current++)); [ $current -ge ${#styles[@]} ] && current=0 ;;
+            '') save_prompt_style "${styles[$current]}"; return ;;
+            'q'|'Q') return ;;
+        esac
+    done
+}
+
+save_prompt_style() {
+    local style=$1
+    local config_file="$HOME/.emty-config"
+    
+    touch "$config_file"
+    
+    # Remove old PROMPT_CURSOR
+    if [ -f "$config_file" ]; then
+        grep -v '^export PROMPT_CURSOR=' "$config_file" > "${config_file}.tmp" 2>/dev/null || true
+    else
+        : > "${config_file}.tmp"
+    fi
+    
+    # Add new style
+    cat "${config_file}.tmp" > "$config_file"
+    echo "export PROMPT_CURSOR=\"$style\"" >> "$config_file"
+    rm -f "${config_file}.tmp"
+    
+    clear
+    echo ""
+    echo -e "${GREEN}✓${RESET} Prompt cursor set to: ${CYAN}$style${RESET}"
+    echo -e "${GRAY}Changes applied automatically! Open a new terminal to see.${RESET}"
+    echo ""
+    sleep 1
+}
+
+trap 'tput cnorm' EXIT
+main_menu

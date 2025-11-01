@@ -1,10 +1,10 @@
-# boostr - minimal zsh configuration
+# emty - minimal zsh configuration
 export PATH="$HOME/bin:/opt/homebrew/bin:$PATH"
 
 # Show greeting on new terminal (not on subshells)
 if [[ -o interactive ]] && [[ -z "$GREETING_SHOWN" ]]; then
     export GREETING_SHOWN=1
-    ~/bin/boostr
+    ~/bin/emty
 fi
 
 # Simple colored prompt: green > or red > (if last command failed)

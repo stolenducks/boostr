@@ -1,5 +1,5 @@
 #!/bin/bash
-# boostr - AI-powered terminal setup installer
+# emty - AI-powered terminal setup installer
 # Supports: macOS, Linux (Debian/Ubuntu, Arch, Void)
 
 set -e
@@ -120,23 +120,31 @@ install_ollama() {
 install_configs() {
     echo -e "${CYAN}[>]${RESET} Installing configurations..."
     
+    # Determine Ghostty config path based on OS
+    if [ "$OS" = "macos" ]; then
+        GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+    else
+        GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
+    fi
+    
     # Create directories
-    mkdir -p ~/.config/ghostty
+    mkdir -p "$GHOSTTY_CONFIG_DIR"
     mkdir -p ~/bin
     
     # Backup existing configs
-    [ -f ~/.config/ghostty/config ] && mv ~/.config/ghostty/config ~/.config/ghostty/config.backup
+    [ -f "$GHOSTTY_CONFIG_DIR/config" ] && mv "$GHOSTTY_CONFIG_DIR/config" "$GHOSTTY_CONFIG_DIR/config.backup"
     [ -f ~/.zshrc ] && cp ~/.zshrc ~/.zshrc.backup
     
     # Copy configs
-    cp configs/ghostty/config ~/.config/ghostty/config
+    cp configs/ghostty/config "$GHOSTTY_CONFIG_DIR/config"
     cp bin/* ~/bin/
-    chmod +x ~/bin/{ai,ai-exec,boostr,boostr-spinner,boostr-status}
+    chmod +x ~/bin/{ai,ai-exec,emty,emty-spinner,emty-status,emty-theme}
     
     # Append zsh config
     cat configs/zsh/.zshrc >> ~/.zshrc
     
     echo -e "${GREEN}[✓]${RESET} Configs installed"
+    echo -e "${GRAY}    Ghostty config: $GHOSTTY_CONFIG_DIR/config${RESET}"
     [ -f ~/.zshrc.backup ] && echo -e "${GRAY}    Backup saved to ~/.zshrc.backup${RESET}"
 }
 

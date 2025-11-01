@@ -1,0 +1,45 @@
+#!/bin/bash
+# Create clickable hyperlinks using OSC 8
+
+# Usage: hyperlink "text" "url"
+# Or pipe: echo "/path/to/file" | hyperlink
+
+make_clickable() {
+    local text="$1"
+    local url="$2"
+    
+    # OSC 8 format: \e]8;;URL\e\\TEXT\e]8;;\e\\
+    printf '\e]8;;%s\e\\%s\e]8;;\e\\' "$url" "$text"
+}
+
+# Auto-detect file paths and make them clickable
+auto_hyperlink() {
+    local line
+    while IFS= read -r line; do
+        # Match file paths (starting with / or ~ or ./)
+        if [[ "$line" =~ (^|[[:space:]])(~?/?[a-zA-Z0-9_./\-]+)($|[[:space:]]) ]]; then
+            local path="${BASH_REMATCH[2]}"
+            # Expand ~ to full path
+            local full_path="${path/#\~/$HOME}"
+            
+            # Check if path exists
+            if [ -e "$full_path" ] || [ -d "$full_path" ]; then
+                # Make it clickable with file:// URL
+                local clickable=$(make_clickable "$path" "file://$full_path")
+                line="${line//$path/$clickable}"
+            fi
+        fi
+        echo "$line"
+    done
+}
+
+# If piped, auto-hyperlink
+if [ ! -t 0 ]; then
+    auto_hyperlink
+# Otherwise use as function
+elif [ $# -eq 2 ]; then
+    make_clickable "$1" "$2"
+else
+    echo "Usage: hyperlink \"text\" \"url\""
+    echo "   Or: echo \"/path/file\" | hyperlink"
+fi

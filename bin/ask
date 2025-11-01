@@ -1,0 +1,160 @@
+#!/bin/bash
+# AI assistant using Ollama with conversation context
+
+# Load spinner library
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SOURCE_DIR/spinner"
+
+# Load user config
+[ -f ~/.emty-config ] && source ~/.emty-config
+
+CONTEXT_FILE=~/.ai-conversation-context
+MAX_CONTEXT_LINES=200  # Keep last ~100 exchanges
+
+# Check if question needs system info
+QUESTION="$*"
+
+# Handle special commands
+if [[ "$QUESTION" == "clear" ]] || [[ "$QUESTION" == "reset" ]]; then
+    rm -f "$CONTEXT_FILE"
+    success "Conversation context cleared"
+    exit 0
+fi
+
+if [ -z "$QUESTION" ]; then
+    echo "Usage: ai \"your question\""
+    echo "       ai clear  # Clear conversation history"
+    exit 1
+fi
+
+# For time-related questions, include current time
+if [[ "$QUESTION" =~ "time"|"date"|"when" ]]; then
+    SYSTEM_INFO="Current time: $(date '+%Y-%m-%d %H:%M:%S %Z')\n"
+else
+    SYSTEM_INFO=""
+fi
+
+# Add minimal context only when relevant
+if [[ "$QUESTION" =~ "file"|"directory"|"folder"|"here" ]]; then
+    SYSTEM_INFO+="Current directory: $(pwd)\n"
+fi
+
+# Load conversation history
+CONVERSATION_HISTORY=""
+if [ -f "$CONTEXT_FILE" ]; then
+    CONVERSATION_HISTORY="Previous conversation:\n$(tail -n $MAX_CONTEXT_LINES "$CONTEXT_FILE")\n\n"
+fi
+
+# Build prompt with context
+PROMPT="${SYSTEM_INFO}${CONVERSATION_HISTORY}User: $QUESTION\n\nAnswer directly and concisely:"
+
+# Auto-discover LM Studio on network
+USE_LM_STUDIO=false
+LM_STUDIO_URL=""
+
+# Check common LM Studio locations
+for host in "localhost" "127.0.0.1" "192.168.1.92" "$(hostname -I 2>/dev/null | awk '{print $1}')"; do
+    [ -z "$host" ] && continue
+    for port in 1234 8080; do
+        if curl -s --max-time 1 "http://${host}:${port}/v1/models" > /dev/null 2>&1; then
+            LM_STUDIO_URL="http://${host}:${port}"
+            USE_LM_STUDIO=true
+            break 2
+        fi
+    done
+done
+
+# Start spinner while AI thinks
+spinner "Thinking" "${SPINNER_STYLE:-box}" &
+SPINNER_PID=$!
+
+# Call AI (LM Studio or Ollama)
+if [ "$USE_LM_STUDIO" = true ]; then
+    # Escape prompt for JSON
+    ESCAPED_PROMPT=$(echo "$PROMPT" | jq -Rs .)
+    
+    RESPONSE=$(curl -s "${LM_STUDIO_URL}/v1/chat/completions" \
+        -H "Content-Type: application/json" \
+        -d "{
+            \"model\": \"openai/gpt-oss-20b\",
+            \"messages\": [{\"role\": \"user\", \"content\": ${ESCAPED_PROMPT}}],
+            \"temperature\": 0.7,
+            \"max_tokens\": 1000
+        }" 2>/dev/null | jq -r '.choices[0].message.content // empty' 2>/dev/null)
+    
+    # If empty or failed, fall back to Ollama
+    if [ -z "$RESPONSE" ]; then
+        RESPONSE=$(ollama run qwen2.5:7b "$PROMPT" 2>/dev/null)
+    fi
+else
+    RESPONSE=$(ollama run qwen2.5:7b "$PROMPT" 2>/dev/null)
+fi
+
+# Stop spinner
+stop_spinner $SPINNER_PID
+
+# Display response with configurable border
+CYAN='\033[0;36m'
+RESET='\033[0m'
+
+# Load border style from config (default: rounded)
+BORDER_STYLE="${BORDER_STYLE:-rounded}"
+
+# Define border characters
+case "$BORDER_STYLE" in
+    heavy)
+        TL="┏" TR="┓" BL="┗" BR="┛" H="━" V="┃"
+        ;;
+    double)
+        TL="╔" TR="╗" BL="╚" BR="╝" H="═" V="║"
+        ;;
+    simple)
+        TL="┌" TR="┐" BL="└" BR="┘" H="─" V="│"
+        ;;
+    ascii)
+        TL="+" TR="+" BL="+" BR="+" H="-" V="|"
+        ;;
+    *) # rounded (default)
+        TL="╭" TR="╮" BL="╰" BR="╯" H="─" V="│"
+        ;;
+esac
+
+echo ""
+printf "${CYAN}%s" "$TL"
+for ((i=0; i<65; i++)); do printf "%s" "$H"; done
+printf "%s${RESET}\n" "$TR"
+
+# Make file paths clickable using OSC 8 hyperlinks
+make_path_clickable() {
+    local text="$1"
+    # Match paths like /path/to/file or ~/file or ./file
+    if [[ "$text" =~ ([~/.]?[a-zA-Z0-9_/.\-]+\.[a-zA-Z]{1,4}|~?/[a-zA-Z0-9_/.\-]+) ]]; then
+        local path="${BASH_REMATCH[1]}"
+        local full_path="${path/#\~/$HOME}"
+        if [ -e "$full_path" ]; then
+            local clickable=$(printf '\e]8;;file://%s\e\\%s\e]8;;\e\\' "$full_path" "$path")
+            text="${text//$path/$clickable}"
+        fi
+    fi
+    echo "$text"
+}
+
+echo "$RESPONSE" | fold -s -w 63 | while IFS= read -r line; do
+    line=$(make_path_clickable "$line")
+    printf "${CYAN}%s${RESET} %-63s ${CYAN}%s${RESET}\n" "$V" "$line" "$V"
+done
+
+printf "${CYAN}%s" "$BL"
+for ((i=0; i<65; i++)); do printf "%s" "$H"; done
+printf "%s${RESET}\n" "$BR"
+echo ""
+
+# Save to context (keep it concise)
+echo "Q: $QUESTION" >> "$CONTEXT_FILE"
+echo "A: $(echo "$RESPONSE" | head -c 200)..." >> "$CONTEXT_FILE"
+
+# Trim context file if it gets too large
+if [ -f "$CONTEXT_FILE" ]; then
+    tail -n $MAX_CONTEXT_LINES "$CONTEXT_FILE" > "${CONTEXT_FILE}.tmp"
+    mv "${CONTEXT_FILE}.tmp" "$CONTEXT_FILE"
+fi

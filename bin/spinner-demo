@@ -99,6 +99,6 @@ echo ""
 echo ""
 
 echo "Current default: BOX style"
-echo "To change, edit: ~/boostr/bin/ai or ~/boostr/bin/ai-exec"
+echo "To change, edit: ~/emty/bin/ai or ~/emty/bin/ai-exec"
 echo "Change 'spinner \"...\" \"box\"' to another style"
 echo ""

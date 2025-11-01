@@ -1,8 +1,8 @@
-# boostr
+# emty
 
 > AI-powered terminal built on Ghostty with local LLM integration
 
-**boostr** combines the speed of [Ghostty](https://ghostty.org) with the power of local AI ([Ollama](https://ollama.com)) to create an intelligent terminal experience that respects your privacy.
+**emty** combines the speed of [Ghostty](https://ghostty.org) with the power of local AI ([Ollama](https://ollama.com)) to create an intelligent terminal experience that respects your privacy.
 
 > **Project Status:** This is a personal terminal setup that I'm sharing. Fully tested on macOS. Linux support is experimental. Issues and PRs welcome, but support is provided on a best-effort basis.
 
@@ -44,13 +44,13 @@
 
 ### One-Line Install
 ```bash
-curl -fsSL https://raw.githubusercontent.com/stolenducks/boostr/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/stolenducks/emty/main/install.sh | bash
 ```
 
 ### Manual Install
 ```bash
-git clone https://github.com/stolenducks/boostr.git
-cd boostr
+git clone https://github.com/stolenducks/emty.git
+cd emty
 chmod +x install.sh
 ./install.sh
 ```
@@ -127,7 +127,7 @@ See [Ghostty docs](https://ghostty.org/docs/config/keybind) for available action
 ## Architecture
 
 ```
-boostr/
+emty/
 ├── install.sh              # Cross-platform installer
 ├── configs/
 │   ├── ghostty/config      # Terminal configuration
@@ -146,7 +146,7 @@ boostr/
 3. **Shell scripts** bridge the two with conversational context and safety checks
 4. **zsh integration** provides the minimal `>` prompt and helper functions
 
-## Why boostr?
+## Why emty?
 
 **vs. Warp:**
 - ✅ 100% local AI (no cloud, no tracking)
@@ -184,7 +184,7 @@ Or manually:
 ```bash
 rm -rf ~/.config/ghostty
 rm ~/bin/{ai,ai-exec,greeting}
-# Remove boostr section from ~/.zshrc
+# Remove emty section from ~/.zshrc
 ```
 
 ## Contributing
@@ -208,7 +208,7 @@ MIT - See [LICENSE](LICENSE) for details.
 
 ## Star History
 
-If you find **boostr** useful, please consider giving it a ⭐ on GitHub!
+If you find **emty** useful, please consider giving it a ⭐ on GitHub!
 
 ---
 
